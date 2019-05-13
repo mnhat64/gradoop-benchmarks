@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>org.gradoop.benchmarks</groupId>
+    <artifactId>gradoop-benchmarks</artifactId>
+    <version>0.1</version>
+    <packaging>jar</packaging>
+
+    <name>Gradoop Benchmarks</name>
+    <url>http://www.gradoop.com</url>
+    <description>
+        This repository contains sets of Gradoop operator benchmarks designed to run on a
+        cluster to measure scalability and speedup of the operators.
+    </description>
+
+    <organization>
+        <name>University of Leipzig</name>
+        <url>http://dbs.uni-leipzig.de/en</url>
+    </organization>
+
+    <licenses>
+        <license>
+            <name>Apache 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+        </license>
+    </licenses>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.maven.version>3.0.0</project.maven.version>
+        <project.build.targetJdk>1.8</project.build.targetJdk>
+
+        <license.licenseName>apache_v2</license.licenseName>
+
+        <dep.gradoop.version>0.5.0-SNAPSHOT</dep.gradoop.version>
+        <dep.flink.version>1.7.2</dep.flink.version>
+
+        <plugin.maven-compiler.version>3.8.0</plugin.maven-compiler.version>
+        <plugin.maven-checkstyle.version>3.0.0</plugin.maven-checkstyle.version>
+        <plugin.maven-shade.version>3.2.1</plugin.maven-shade.version>
+        <plugin.maven-spotbugs.version>3.1.11</plugin.maven-spotbugs.version>
+        <plugin.maven-surefire.version>2.22.1</plugin.maven-surefire.version>
+        <plugin.maven-jar.version>3.1.1</plugin.maven-jar.version>
+    </properties>
+
+    <dependencies>
+        <!-- Gradoop dependencies-->
+        <dependency>
+            <groupId>org.gradoop</groupId>
+            <artifactId>gradoop-common</artifactId>
+            <version>${dep.gradoop.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.gradoop</groupId>
+            <artifactId>gradoop-flink</artifactId>
+            <version>${dep.gradoop.version}</version>
+        </dependency>
+
+        <!-- gradoop-examples only needed because of AbstractRunner -->
+        <dependency>
+            <groupId>org.gradoop</groupId>
+            <artifactId>gradoop-examples</artifactId>
+            <version>${dep.gradoop.version}</version>
+        </dependency>
+
+        <!-- Apache Flink dependencies -->
+        <dependency>
+            <groupId>org.apache.flink</groupId>
+            <artifactId>flink-java</artifactId>
+            <version>${dep.flink.version}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.flink</groupId>
+            <artifactId>flink-clients_2.11</artifactId>
+            <version>${dep.flink.version}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.flink</groupId>
+            <artifactId>flink-gelly_2.11</artifactId>
+            <version>${dep.flink.version}</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>${plugin.maven-compiler.version}</version>
+                <configuration>
+                    <source>${project.build.targetJdk}</source>
+                    <target>${project.build.targetJdk}</target>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>${plugin.maven-shade.version}</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <minimizeJar>true</minimizeJar>
+                            <filters>
+                                <!-- Filters out signed files to avoid SecurityException when integrating a signed jar in the resulting jar. -->
+                                <filter>
+                                    <artifact>*:*</artifact>
+                                    <excludes>
+                                        <exclude>META-INF/*.SF</exclude>
+                                        <exclude>META-INF/*.DSA</exclude>
+                                        <exclude>META-INF/*.RSA</exclude>
+                                    </excludes>
+                                </filter>
+                            </filters>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>
