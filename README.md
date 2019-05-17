@@ -10,3 +10,6 @@ This repository contains sets of Gradoop operator benchmarks designed to run on 
 * Sampling
 * Subgraph
 * Social Network Analytics workflows
+* Frequent Loss Patterns (BIIIG)
+* Category Characteristic Patterns (BIIIG)
+* Frequent Subgraph Mining (DimSpan)
