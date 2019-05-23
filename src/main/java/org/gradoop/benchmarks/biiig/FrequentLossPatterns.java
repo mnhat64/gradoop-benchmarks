@@ -15,13 +15,13 @@
  */
 package org.gradoop.benchmarks.biiig;
 
+import org.gradoop.benchmarks.AbstractRunner;
 import org.gradoop.common.model.api.entities.EPGMElement;
 import org.gradoop.common.model.impl.pojo.Edge;
 import org.gradoop.common.model.impl.pojo.GraphHead;
 import org.gradoop.common.model.impl.pojo.Vertex;
 import org.gradoop.common.model.impl.properties.PropertyValue;
 import org.gradoop.common.model.impl.properties.PropertyValueUtils;
-import org.gradoop.examples.AbstractRunner;
 import org.gradoop.flink.algorithms.btgs.BusinessTransactionGraphs;
 import org.gradoop.flink.algorithms.fsm.TransactionalFSM;
 import org.gradoop.flink.algorithms.fsm.dimspan.config.DIMSpanConstants;
@@ -144,7 +144,7 @@ public class FrequentLossPatterns extends AbstractRunner {
     // (1) read data from source
 
     String csvPath = URLDecoder.decode(
-      org.gradoop.examples.biiig.FrequentLossPatterns.class.getResource("/data/csv/foodbroker").getFile(),
+      FrequentLossPatterns.class.getResource("/data/csv/foodbroker").getFile(),
       StandardCharsets.UTF_8.name());
 
     LogicalGraph iig = readLogicalGraph(csvPath);

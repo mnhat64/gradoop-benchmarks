@@ -15,8 +15,8 @@
  */
 package org.gradoop.benchmarks.patternmatching;
 
+import org.apache.commons.cli.CommandLine;
 import org.apache.flink.api.java.DataSet;
-import org.gradoop.examples.thirdparty.commons.cli.CommandLine;
 import org.gradoop.flink.model.impl.operators.matching.common.tuples.IdWithCandidates;
 import org.gradoop.flink.model.impl.operators.matching.common.tuples.TripleWithCandidates;
 import org.gradoop.flink.model.impl.operators.matching.single.PatternMatching;

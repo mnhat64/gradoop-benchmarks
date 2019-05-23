@@ -15,10 +15,10 @@
  */
 package org.gradoop.benchmarks.subgraph;
 
+import org.apache.commons.cli.CommandLine;
 import org.apache.commons.io.FileUtils;
 import org.apache.flink.api.java.ExecutionEnvironment;
-import org.gradoop.examples.AbstractRunner;
-import org.gradoop.examples.thirdparty.commons.cli.CommandLine;
+import org.gradoop.benchmarks.AbstractRunner;
 import org.gradoop.flink.io.api.DataSink;
 import org.gradoop.flink.io.api.DataSource;
 import org.gradoop.flink.io.impl.csv.CSVDataSink;

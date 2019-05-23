@@ -16,9 +16,9 @@
 package org.gradoop.benchmarks.grouping;
 
 import com.google.common.collect.Lists;
+import org.apache.commons.cli.CommandLine;
 import org.apache.commons.io.FileUtils;
-import org.gradoop.examples.AbstractRunner;
-import org.gradoop.examples.thirdparty.commons.cli.CommandLine;
+import org.gradoop.benchmarks.AbstractRunner;
 import org.gradoop.flink.model.api.functions.AggregateFunction;
 import org.gradoop.flink.model.impl.epgm.LogicalGraph;
 import org.gradoop.flink.model.impl.operators.aggregation.functions.count.Count;

@@ -19,8 +19,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import org.apache.commons.io.IOUtils;
 import org.apache.flink.api.java.ExecutionEnvironment;
-import org.gradoop.examples.AbstractRunner;
-import org.gradoop.examples.utils.ExampleOutput;
+import org.gradoop.benchmarks.AbstractRunner;
 import org.gradoop.flink.algorithms.gelly.labelpropagation.GellyLabelPropagation;
 import org.gradoop.flink.model.api.functions.TransformationFunction;
 import org.gradoop.flink.model.impl.epgm.LogicalGraph;
@@ -122,24 +121,22 @@ public class SocialNetworkAnalyticsBenchmark1 extends AbstractRunner {
    * @throws Exception on failure
    */
   private static void executeWithDemoData(GradoopFlinkConfig gradoopConf) throws Exception {
-    ExampleOutput out = new ExampleOutput();
-
     FlinkAsciiGraphLoader loader = new FlinkAsciiGraphLoader(gradoopConf);
 
-    String graphDefinition = IOUtils.toString(org.gradoop.examples.sna.SNABenchmark2.class
+    String graphDefinition = IOUtils.toString(SocialNetworkAnalyticsBenchmark1.class
       .getResourceAsStream("/data/gdl/sna.gdl"));
 
     loader.initDatabaseFromString(graphDefinition);
 
     LogicalGraph inputGraph = loader.getLogicalGraphByVariable("db");
 
-    out.add("Input Graph", inputGraph);
+    System.out.println("Input Graph");
+    inputGraph.print();
 
     LogicalGraph outputGraph = execute(inputGraph, 2);
 
-    out.add("Output Graph", outputGraph);
-
-    out.print();
+    System.out.println("Output Graph");
+    outputGraph.print();
   }
 
   /**

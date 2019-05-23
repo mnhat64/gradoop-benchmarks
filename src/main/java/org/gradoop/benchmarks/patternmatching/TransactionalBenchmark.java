@@ -15,15 +15,15 @@
  */
 package org.gradoop.benchmarks.patternmatching;
 
-import org.gradoop.examples.thirdparty.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLine;
 import org.apache.flink.api.common.functions.FilterFunction;
 import org.apache.flink.api.java.DataSet;
 import org.apache.flink.api.java.ExecutionEnvironment;
 import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.api.java.tuple.Tuple4;
+import org.gradoop.benchmarks.AbstractRunner;
 import org.gradoop.common.model.impl.id.GradoopId;
 import org.gradoop.common.model.impl.id.GradoopIdSet;
-import org.gradoop.examples.AbstractRunner;
 import org.gradoop.flink.io.impl.tlf.TLFDataSource;
 import org.gradoop.flink.model.impl.operators.matching.single.PatternMatching;
 import org.gradoop.flink.model.impl.operators.matching.transactional.TransactionalPatternMatching;

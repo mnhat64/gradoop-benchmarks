@@ -19,7 +19,6 @@ import org.apache.commons.io.IOUtils;
 import org.apache.flink.api.java.ExecutionEnvironment;
 import org.gradoop.common.model.api.entities.EPGMElement;
 import org.gradoop.common.model.impl.properties.PropertyValue;
-import org.gradoop.examples.utils.ExampleOutput;
 import org.gradoop.flink.algorithms.btgs.BusinessTransactionGraphs;
 import org.gradoop.flink.algorithms.fsm.transactional.CategoryCharacteristicSubgraphs;
 import org.gradoop.flink.algorithms.fsm.transactional.common.FSMConfig;
@@ -52,11 +51,10 @@ public class CategoryCharacteristicPatterns {
    */
   public static void main(String[] args) throws Exception {
 
-    ExampleOutput out = new ExampleOutput();
-
     LogicalGraph iig = getIntegratedInstanceGraph();
 
-    out.add("Integrated Instance Graph", iig);
+    System.out.println("Integrated Instance Graph");
+    iig.print();
 
     // extract business transaction graphs (BTGs)
     GraphCollection btgs = iig
@@ -70,7 +68,8 @@ public class CategoryCharacteristicPatterns {
       // count number of sales orders per BTG
       .apply(new ApplyAggregation(new CountSalesOrdersAggregateFunction()));
 
-    out.add("Business Transaction Graphs with Measures", btgs);
+    System.out.println("Business Transaction Graphs with Measures");
+    btgs.print();
 
     btgs = btgs.apply(new ApplyTransformation((graph, copy) -> {
       // Transformation function to categorize graphs
@@ -93,16 +92,16 @@ public class CategoryCharacteristicPatterns {
     })
     );
 
-    out.add("Business Transaction Graphs after Transformation", btgs);
+    System.out.println("Business Transaction Graphs after Transformation");
+    btgs.print();
 
     FSMConfig fsmConfig = new FSMConfig(0.8f, true, 1, 3);
 
     GraphCollection patterns = btgs
       .callForCollection(new CategoryCharacteristicSubgraphs(fsmConfig, 2.0f));
 
-    out.add("Category characteristic graph patters", patterns);
-
-    out.print();
+    System.out.println("Category characteristic graph patters");
+    patterns.print();
   }
 
   /**

@@ -15,10 +15,10 @@
  */
 package org.gradoop.benchmarks.dimspan;
 
+import org.apache.commons.cli.CommandLine;
 import org.apache.flink.api.java.DataSet;
+import org.gradoop.benchmarks.AbstractRunner;
 import org.gradoop.benchmarks.dimspan.data_source.DIMSpanTLFSource;
-import org.gradoop.examples.AbstractRunner;
-import org.gradoop.examples.thirdparty.commons.cli.CommandLine;
 import org.gradoop.flink.algorithms.fsm.dimspan.DIMSpan;
 import org.gradoop.flink.algorithms.fsm.dimspan.config.DIMSpanConfig;
 import org.gradoop.flink.io.api.DataSink;

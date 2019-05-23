@@ -16,12 +16,12 @@
 package org.gradoop.benchmarks.dimspan;
 
 import com.google.common.collect.Sets;
+import org.apache.commons.cli.CommandLine;
 import org.apache.flink.api.common.functions.FlatMapFunction;
 import org.apache.flink.api.java.DataSet;
 import org.apache.flink.api.java.typeutils.TypeExtractor;
+import org.gradoop.benchmarks.AbstractRunner;
 import org.gradoop.common.model.impl.pojo.GraphHead;
-import org.gradoop.examples.AbstractRunner;
-import org.gradoop.examples.thirdparty.commons.cli.CommandLine;
 import org.gradoop.flink.io.api.DataSink;
 import org.gradoop.flink.io.api.DataSource;
 import org.gradoop.flink.io.impl.tlf.TLFDataSink;
