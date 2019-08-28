@@ -18,7 +18,6 @@ package org.gradoop.benchmarks.sna;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import org.apache.commons.io.IOUtils;
-import org.apache.flink.api.java.ExecutionEnvironment;
 import org.gradoop.benchmarks.AbstractRunner;
 import org.gradoop.flink.algorithms.gelly.labelpropagation.GellyLabelPropagation;
 import org.gradoop.flink.model.api.functions.TransformationFunction;
@@ -88,8 +87,7 @@ public class SocialNetworkAnalyticsBenchmark1 extends AbstractRunner {
     if (useExternalData) {
       executeWithExternalData(args);
     } else {
-      executeWithDemoData(GradoopFlinkConfig
-        .createConfig(ExecutionEnvironment.getExecutionEnvironment()));
+      executeWithDemoData(GradoopFlinkConfig.createConfig(getExecutionEnvironment()));
     }
   }
 
@@ -185,11 +183,11 @@ public class SocialNetworkAnalyticsBenchmark1 extends AbstractRunner {
       // 3b) separate communities
       .splitBy(label)
       // 4) compute vertex count per community
-      .apply(new ApplyAggregation(new VertexCount(vertexCount)))
+      .apply(new ApplyAggregation<>(new VertexCount(vertexCount)))
       // 5) select graphs with more than minClusterSize vertices
       .select(g -> g.getPropertyValue(vertexCount).getLong() > threshold)
       // 6) reduce filtered graphs to a single graph using combination
-      .reduce(new ReduceCombination())
+      .reduce(new ReduceCombination<>())
       // 7) group that graph by vertex properties
       .groupBy(Lists.newArrayList(city, gender))
       // 8) count vertices and edges of grouped graph

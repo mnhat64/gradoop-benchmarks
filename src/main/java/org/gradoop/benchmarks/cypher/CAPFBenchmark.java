@@ -20,7 +20,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.flink.api.java.ExecutionEnvironment;
 import org.apache.flink.api.java.io.LocalCollectionOutputFormat;
 import org.gradoop.benchmarks.AbstractRunner;
-import org.gradoop.common.model.impl.pojo.Vertex;
+import org.gradoop.common.model.impl.pojo.EPGMVertex;
 import org.gradoop.flink.model.impl.epgm.GraphCollection;
 import org.gradoop.flink.model.impl.epgm.LogicalGraph;
 import org.gradoop.flink.model.impl.operators.cypher.capf.result.CAPFQueryResult;
@@ -117,7 +117,7 @@ public class CAPFBenchmark extends AbstractRunner {
 
     if (result.containsGraphs()) {
       collection = result.getGraphs();
-      List<Vertex> vertices = new ArrayList<>();
+      List<EPGMVertex> vertices = new ArrayList<>();
       collection.getVertices().output(new LocalCollectionOutputFormat<>(vertices));
       System.out.println(collection.getGraphHeads().count());
     } else {

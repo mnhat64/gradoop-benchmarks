@@ -16,10 +16,10 @@
 package org.gradoop.benchmarks.biiig;
 
 import org.gradoop.benchmarks.AbstractRunner;
-import org.gradoop.common.model.api.entities.EPGMElement;
-import org.gradoop.common.model.impl.pojo.Edge;
-import org.gradoop.common.model.impl.pojo.GraphHead;
-import org.gradoop.common.model.impl.pojo.Vertex;
+import org.gradoop.common.model.api.entities.Element;
+import org.gradoop.common.model.impl.pojo.EPGMEdge;
+import org.gradoop.common.model.impl.pojo.EPGMGraphHead;
+import org.gradoop.common.model.impl.pojo.EPGMVertex;
 import org.gradoop.common.model.impl.properties.PropertyValue;
 import org.gradoop.common.model.impl.properties.PropertyValueUtils;
 import org.gradoop.flink.algorithms.btgs.BusinessTransactionGraphs;
@@ -83,7 +83,7 @@ public class FrequentLossPatterns extends AbstractRunner {
    * @param transformed copy of current except label and properties
    * @return current vertex with a new label depending on its type
    */
-  private static Vertex relabelVerticesAndRemoveProperties(Vertex current, Vertex transformed) {
+  private static EPGMVertex relabelVerticesAndRemoveProperties(EPGMVertex current, EPGMVertex transformed) {
     String label;
 
     if (current.getPropertyValue(BusinessTransactionGraphs.SUPERTYPE_KEY).getString().equals(
@@ -104,7 +104,7 @@ public class FrequentLossPatterns extends AbstractRunner {
    * @param transformed copy of current except label and properties
    * @return current edge without properties
    */
-  private static Edge dropEdgeProperties(Edge current, Edge transformed) {
+  private static EPGMEdge dropEdgeProperties(EPGMEdge current, EPGMEdge transformed) {
     transformed.setLabel(current.getLabel());
     return transformed;
   }
@@ -116,7 +116,7 @@ public class FrequentLossPatterns extends AbstractRunner {
    * @param transformed copy of current except label and properties
    * @return graph head with additional support property
    */
-  private static GraphHead addSupportToGraphHead(GraphHead current, GraphHead transformed) {
+  private static EPGMGraphHead addSupportToGraphHead(EPGMGraphHead current, EPGMGraphHead transformed) {
     BigDecimal support = current
       .getPropertyValue(DIMSpanConstants.SUPPORT_KEY)
       .getBigDecimal().setScale(2, ROUND_HALF_UP);
@@ -155,7 +155,7 @@ public class FrequentLossPatterns extends AbstractRunner {
       .callForCollection(new BusinessTransactionGraphs());
 
     // (3) aggregate financial result
-    btgs = btgs.apply(new ApplyAggregation(new Result()));
+    btgs = btgs.apply(new ApplyAggregation<>(new Result()));
 
     // (4) select by loss (negative financialResult)
     btgs = btgs.select(
@@ -163,7 +163,7 @@ public class FrequentLossPatterns extends AbstractRunner {
 
     // (5) relabel vertices and remove vertex and edge properties
 
-    btgs = btgs.apply(new ApplyTransformation(
+    btgs = btgs.apply(new ApplyTransformation<>(
       TransformationFunction.keep(),
       FrequentLossPatterns::relabelVerticesAndRemoveProperties,
       FrequentLossPatterns::dropEdgeProperties
@@ -177,7 +177,7 @@ public class FrequentLossPatterns extends AbstractRunner {
     // (7) Check, if frequent subgraph contains master data
 
     frequentSubgraphs = frequentSubgraphs.apply(
-      new ApplyAggregation(new DetermineMasterDataSurplus()));
+      new ApplyAggregation<>(new DetermineMasterDataSurplus()));
 
     // (8) Select graphs containing master data
 
@@ -186,7 +186,7 @@ public class FrequentLossPatterns extends AbstractRunner {
 
     // (9) relabel graph heads of frequent subgraphs
 
-    frequentSubgraphs = frequentSubgraphs.apply(new ApplyTransformation(
+    frequentSubgraphs = frequentSubgraphs.apply(new ApplyTransformation<>(
       FrequentLossPatterns::addSupportToGraphHead,
       TransformationFunction.keep(),
       TransformationFunction.keep()
@@ -226,7 +226,7 @@ public class FrequentLossPatterns extends AbstractRunner {
 
 
     @Override
-    public PropertyValue getIncrement(EPGMElement vertex) {
+    public PropertyValue getIncrement(Element vertex) {
       PropertyValue increment;
 
       if (vertex.hasProperty(REVENUE_KEY)) {
@@ -252,7 +252,7 @@ public class FrequentLossPatterns extends AbstractRunner {
   private static class DetermineMasterDataSurplus implements Sum, VertexAggregateFunction {
 
     @Override
-    public PropertyValue getIncrement(EPGMElement vertex) {
+    public PropertyValue getIncrement(Element vertex) {
       return vertex.getLabel().startsWith(MASTER_PREFIX) ?
         PropertyValue.create(1) : PropertyValue.create(-1);
     }

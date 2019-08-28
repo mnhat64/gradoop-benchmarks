@@ -25,7 +25,6 @@ import org.gradoop.flink.io.impl.csv.CSVDataSink;
 import org.gradoop.flink.io.impl.csv.indexed.IndexedCSVDataSource;
 import org.gradoop.flink.model.impl.epgm.LogicalGraph;
 import org.gradoop.flink.model.impl.functions.epgm.ByLabel;
-import org.gradoop.flink.model.impl.operators.subgraph.Subgraph;
 import org.gradoop.flink.util.GradoopFlinkConfig;
 
 import java.io.File;
@@ -128,13 +127,12 @@ public class SubgraphBenchmark extends AbstractRunner {
     DataSource source = new IndexedCSVDataSource(INPUT_PATH, conf);
     LogicalGraph graph = source.getLogicalGraph();
 
-    // compute subgraph -> verify results (join) vs no verify (filter)
+    // compute subgraph
+    graph = graph.subgraph(new ByLabel<>(VERTEX_LABEL), new ByLabel<>(EDGE_LABEL));
+
+    // verify results (join) vs no verify (filter)
     if (VERIFICATION) {
-      graph = graph.subgraph(new ByLabel<>(VERTEX_LABEL), new ByLabel<>(EDGE_LABEL),
-        Subgraph.Strategy.BOTH_VERIFIED);
-    } else {
-      graph = graph.subgraph(new ByLabel<>(VERTEX_LABEL), new ByLabel<>(EDGE_LABEL),
-        Subgraph.Strategy.BOTH);
+      graph = graph.verify();
     }
 
     // write graph

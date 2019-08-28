@@ -27,9 +27,9 @@ public class GradoopFormatConverter extends AbstractRunner {
    * Converts a graph from one gradoop format to another.
    *
    * args[0] - path to input graph
-   * args[1] - format of input graph (lgcsv, lgindexed, csv, json, indexed)
+   * args[1] - format of input graph (csv, indexed)
    * args[2] - path to output graph
-   * args[3] - format of output graph (csv, json, indexed)
+   * args[3] - format of output graph (csv, indexed)
    *
    * @param args program arguments
    * @throws Exception on failure

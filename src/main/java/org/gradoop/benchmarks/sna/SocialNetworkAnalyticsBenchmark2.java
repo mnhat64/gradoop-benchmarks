@@ -126,24 +126,25 @@ public class SocialNetworkAnalyticsBenchmark2 extends AbstractRunner {
 
       graph = graph
         .query(getQuery(), getConstruction(), statistics)
-        .reduce(new ReduceCombination());
+        .reduce(new ReduceCombination<>());
 
     } else {
       graph = graph
         .query(getQuery(), getConstruction())
-        .reduce(new ReduceCombination());
+        .reduce(new ReduceCombination<>());
     }
 
     // group on vertex and edge labels + count grouped edges
-    LogicalGraph groupedGraph  = new Grouping.GroupingBuilder()
-      .setStrategy(GroupingStrategy.GROUP_COMBINE)
-      .addVertexGroupingKey("name")
-      .useEdgeLabel(true).useVertexLabel(true)
-      .addEdgeAggregateFunction(new Count())
-      .build().execute(graph);
+    LogicalGraph groupedGraph  = graph.callForGraph(
+      new Grouping.GroupingBuilder()
+        .setStrategy(GroupingStrategy.GROUP_COMBINE)
+        .addVertexGroupingKey("name")
+        .useEdgeLabel(true).useVertexLabel(true)
+        .addEdgeAggregateFunction(new Count())
+        .build());
 
     // filter all edges below a fixed threshold
-    groupedGraph = groupedGraph.edgeInducedSubgraph(new CountFilter());
+    groupedGraph = groupedGraph.edgeInducedSubgraph(new CountFilter<>());
 
     // write data to sink
     DataSink sink = new CSVDataSink(OUTPUT_PATH, conf);
