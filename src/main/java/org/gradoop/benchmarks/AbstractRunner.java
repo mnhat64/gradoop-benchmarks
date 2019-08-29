@@ -27,10 +27,6 @@ import org.gradoop.flink.io.impl.csv.CSVDataSink;
 import org.gradoop.flink.io.impl.csv.CSVDataSource;
 import org.gradoop.flink.io.impl.csv.indexed.IndexedCSVDataSink;
 import org.gradoop.flink.io.impl.csv.indexed.IndexedCSVDataSource;
-import org.gradoop.flink.io.impl.deprecated.json.JSONDataSink;
-import org.gradoop.flink.io.impl.deprecated.json.JSONDataSource;
-import org.gradoop.flink.io.impl.deprecated.logicalgraphcsv.LogicalGraphCSVDataSource;
-import org.gradoop.flink.io.impl.deprecated.logicalgraphcsv.LogicalGraphIndexedCSVDataSource;
 import org.gradoop.flink.model.impl.epgm.LogicalGraph;
 import org.gradoop.flink.util.GradoopFlinkConfig;
 
@@ -87,7 +83,7 @@ public abstract class AbstractRunner {
    * Reads an EPGM database from a given directory.
    *
    * @param directory path to EPGM database
-   * @param format format in which the graph is stored (csv, indexed, json)
+   * @param format format in which the graph is stored (csv, indexed)
    * @return EPGM logical graph
    * @throws IOException on failure
    */
@@ -112,7 +108,7 @@ public abstract class AbstractRunner {
    *
    * @param graph logical graph
    * @param directory output path
-   * @param format output format (csv, indexed, json)
+   * @param format output format (csv, indexed)
    * @throws Exception on failure
    */
   protected static void writeLogicalGraph(LogicalGraph graph, String directory, String format)
@@ -176,16 +172,10 @@ public abstract class AbstractRunner {
     format = format.toLowerCase();
 
     switch (format) {
-    case "json":
-      return new JSONDataSource(directory, config);
     case "csv":
       return new CSVDataSource(directory, config);
     case "indexed":
       return new IndexedCSVDataSource(directory, config);
-    case "lgcsv":
-      return new LogicalGraphCSVDataSource(directory, config);
-    case "lgindexed":
-      return new LogicalGraphIndexedCSVDataSource(directory, config);
     default:
       throw new IllegalArgumentException("Unsupported format: " + format);
     }
@@ -204,8 +194,6 @@ public abstract class AbstractRunner {
     format = format.toLowerCase();
 
     switch (format) {
-    case "json":
-      return new JSONDataSink(directory, config);
     case "csv":
       return new CSVDataSink(directory, config);
     case "indexed":

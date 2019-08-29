@@ -16,17 +16,17 @@
 package org.gradoop.benchmarks.sna.functions;
 
 import org.apache.flink.api.common.functions.FilterFunction;
-import org.gradoop.common.model.impl.pojo.Edge;
+import org.gradoop.common.model.api.entities.Element;
 import org.gradoop.common.model.impl.properties.PropertyValue;
 
 /**
  * Filter all edges below a count of 500
  */
-public class CountFilter implements FilterFunction<Edge> {
+public class CountFilter<E extends Element> implements FilterFunction<E> {
 
   @Override
-  public boolean filter(Edge edge) {
-    PropertyValue value = edge.getPropertyValue("count");
+  public boolean filter(E element) {
+    PropertyValue value = element.getPropertyValue("count");
     return value.getLong() > 500;
   }
 }

@@ -21,7 +21,7 @@ import org.apache.flink.api.common.functions.FlatMapFunction;
 import org.apache.flink.api.java.DataSet;
 import org.apache.flink.api.java.typeutils.TypeExtractor;
 import org.gradoop.benchmarks.AbstractRunner;
-import org.gradoop.common.model.impl.pojo.GraphHead;
+import org.gradoop.common.model.impl.pojo.EPGMGraphHead;
 import org.gradoop.flink.io.api.DataSink;
 import org.gradoop.flink.io.api.DataSource;
 import org.gradoop.flink.io.impl.tlf.TLFDataSink;
@@ -102,7 +102,7 @@ public class TLFDataCopier extends AbstractRunner {
         }
       )
       .returns(TypeExtractor
-        .getForObject(new GraphTransaction(new GraphHead(), Sets.newHashSet(), Sets.newHashSet())));
+        .getForObject(new GraphTransaction(new EPGMGraphHead(), Sets.newHashSet(), Sets.newHashSet())));
 
     // execute and write to disk
     dataSink.write(

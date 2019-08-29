@@ -13,3 +13,6 @@ This repository contains sets of Gradoop operator benchmarks designed to run on 
 * Frequent Loss Patterns (BIIIG)
 * Category Characteristic Patterns (BIIIG)
 * Frequent Subgraph Mining (DimSpan)
+
+## Utilities
+* Gradoop format converter (csv <-> indexed)

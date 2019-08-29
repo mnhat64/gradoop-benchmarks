@@ -17,7 +17,7 @@ package org.gradoop.benchmarks.biiig;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.flink.api.java.ExecutionEnvironment;
-import org.gradoop.common.model.api.entities.EPGMElement;
+import org.gradoop.common.model.api.entities.Element;
 import org.gradoop.common.model.impl.properties.PropertyValue;
 import org.gradoop.flink.algorithms.btgs.BusinessTransactionGraphs;
 import org.gradoop.flink.algorithms.fsm.transactional.CategoryCharacteristicSubgraphs;
@@ -62,16 +62,16 @@ public class CategoryCharacteristicPatterns {
 
     btgs = btgs
       // determine closed/open BTGs
-      .apply(new ApplyAggregation(new IsClosedAggregateFunction()))
+      .apply(new ApplyAggregation<>(new IsClosedAggregateFunction()))
       // select closed BTGs
       .select(g -> g.getPropertyValue("isClosed").getBoolean())
       // count number of sales orders per BTG
-      .apply(new ApplyAggregation(new CountSalesOrdersAggregateFunction()));
+      .apply(new ApplyAggregation<>(new CountSalesOrdersAggregateFunction()));
 
     System.out.println("Business Transaction Graphs with Measures");
     btgs.print();
 
-    btgs = btgs.apply(new ApplyTransformation((graph, copy) -> {
+    btgs = btgs.apply(new ApplyTransformation<>((graph, copy) -> {
       // Transformation function to categorize graphs
       String category = graph.getPropertyValue("soCount").getInt() > 0 ? "won" : "lost";
       copy.setProperty(CATEGORY_KEY, PropertyValue.create(category));
@@ -147,7 +147,7 @@ public class CategoryCharacteristicPatterns {
     }
 
     @Override
-    public PropertyValue getIncrement(EPGMElement vertex) {
+    public PropertyValue getIncrement(Element vertex) {
       boolean isClosedQuotation =
         vertex.getLabel().equals("Quotation") &&
           !vertex.getPropertyValue("status").toString().equals("open");
@@ -169,7 +169,7 @@ public class CategoryCharacteristicPatterns {
     }
 
     @Override
-    public PropertyValue getIncrement(EPGMElement vertex) {
+    public PropertyValue getIncrement(Element vertex) {
       return PropertyValue.create(vertex.getLabel().equals("SalesOrder") ? 1 : 0);
     }
   }
