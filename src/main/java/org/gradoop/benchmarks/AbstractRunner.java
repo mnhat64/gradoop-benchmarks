@@ -163,7 +163,7 @@ public abstract class AbstractRunner {
    * Returns an EPGM DataSource for a given directory and format.
    *
    * @param directory input path
-   * @param format format in which the data is stored (csv, indexed, json)
+   * @param format format in which the data is stored (csv, indexed)
    * @return DataSource for EPGM Data
    */
   private static DataSource getDataSource(String directory, String format) {
@@ -185,7 +185,7 @@ public abstract class AbstractRunner {
    * Returns an EPGM DataSink for a given directory and format.
    *
    * @param directory output path
-   * @param format output format (csv, indexed, json)
+   * @param format output format (csv, indexed)
    * @param config gradoop config
    * @return DataSink for EPGM Data
    */
