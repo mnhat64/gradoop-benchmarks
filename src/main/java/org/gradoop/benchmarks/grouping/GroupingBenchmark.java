@@ -20,6 +20,7 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.io.FileUtils;
 import org.gradoop.benchmarks.AbstractRunner;
 import org.gradoop.flink.model.api.functions.AggregateFunction;
+import org.gradoop.flink.model.api.operators.UnaryBaseGraphToBaseGraphOperator;
 import org.gradoop.flink.model.impl.epgm.LogicalGraph;
 import org.gradoop.flink.model.impl.operators.aggregation.functions.count.Count;
 import org.gradoop.flink.model.impl.operators.aggregation.functions.max.MaxProperty;
@@ -246,7 +247,7 @@ public class GroupingBenchmark extends AbstractRunner {
         EDGE_AGGREGATOR_RESULT_KEYS);
     }
     // build grouping operator
-    Grouping grouping = getOperator(STRATEGY,
+    Grouping grouping = (Grouping) getOperator(STRATEGY,
       vertexKeys, edgeKeys, USE_VERTEX_LABELS, USE_EDGE_LABELS, vAggregators,
       eAggregators);
 
@@ -411,7 +412,7 @@ public class GroupingBenchmark extends AbstractRunner {
    * @param eAggs           used edge aggregators
    * @return grouping operator implementation
    */
-  private static Grouping getOperator(GroupingStrategy strategy,
+  private static UnaryBaseGraphToBaseGraphOperator<LogicalGraph> getOperator(GroupingStrategy strategy,
     List<String> vertexKeys, List<String> edgeKeys,
     boolean useVertexLabels, boolean useEdgeLabels,
     List<AggregateFunction> vAggs, List<AggregateFunction> eAggs) {
