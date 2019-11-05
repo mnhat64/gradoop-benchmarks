@@ -58,13 +58,15 @@ public class SocialNetworkAnalyticsBenchmark1 extends AbstractRunner {
    * The program can be executed using either external data or demo data.
    *
    * If no arguments are given, the program is executed on a demo social network
-   * which is described in 'resources/data/gdl/sna.gdl'.
+   * which is described in 'resources/data/gdl/sna.gdl'. Please note that using demo data prevents the
+   * execution on a cluster environment because a local collection format is used to print the
+   * graph to the console.
    *
    * For using external data, the following arguments are mandatory:
    *
    * 1) (possibly HDFS) input directory that contains a EPGM graph
    *
-   * 2) Format the graph is in (csv, indexed, json)
+   * 2) Format the graph is in (csv, indexed)
    *
    * 3) (possibly HDFS) output directory to write the resulting graph to
    *
@@ -93,7 +95,7 @@ public class SocialNetworkAnalyticsBenchmark1 extends AbstractRunner {
 
   /**
    * Runs the benchmark program with external data (e.g. from HDFS)
-   * in a given format (csv, indexed, json)
+   * in a given format (csv, indexed)
    *
    * @param args args[0]: input dir, args[1]: input format, args[2]: output dir, args[3]: threshold
    * @throws Exception on failure
@@ -113,7 +115,8 @@ public class SocialNetworkAnalyticsBenchmark1 extends AbstractRunner {
   }
 
   /**
-   * Runs the benchmark with demo data.
+   * Runs the benchmark with demo data. Please note that this can not be executed on a cluster environment
+   * because a local collection format is used to print the graph to the console.
    *
    * @param gradoopConf gradoop config
    * @throws Exception on failure

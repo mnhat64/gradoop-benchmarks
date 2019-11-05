@@ -46,7 +46,7 @@ public class GroupingBenchmark extends AbstractRunner {
    */
   private static final String OPTION_INPUT_PATH = "i";
   /**
-   * Option to declare input graph format (csv, indexed, json)
+   * Option to declare input graph format (csv, indexed)
    */
   private static final String OPTION_INPUT_FORMAT = "f";
   /**
@@ -171,7 +171,7 @@ public class GroupingBenchmark extends AbstractRunner {
     OPTIONS.addOption(OPTION_INPUT_PATH, "vertex-input-path", true,
       "Path to vertex file");
     OPTIONS.addOption(OPTION_INPUT_FORMAT, "input-format", true,
-      "Format of the input [csv, indexed, json]. Default: " + DEFAULT_FORMAT);
+      "Format of the input [csv, indexed]. Default: " + DEFAULT_FORMAT);
     OPTIONS.addOption(OPTION_OUTPUT_PATH, "output-path", true,
       "Path to write output files to");
     OPTIONS.addOption(OPTION_GROUPING_STRATEGY, "strategy", true,
