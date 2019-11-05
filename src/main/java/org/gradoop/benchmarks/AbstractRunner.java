@@ -135,13 +135,8 @@ public abstract class AbstractRunner {
    * @param directory directory
    * @return directory with OS specific file separator
    */
-  private static String appendSeparator(final String directory) {
-    final String fileSeparator = System.getProperty("file.separator");
-    String result = directory;
-    if (!directory.endsWith(fileSeparator)) {
-      result = directory + fileSeparator;
-    }
-    return result;
+  protected static String appendSeparator(final String directory) {
+    return directory.endsWith(File.separator) ? directory : directory + File.separator;
   }
 
   /**

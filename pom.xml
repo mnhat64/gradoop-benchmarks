@@ -61,6 +61,12 @@
             <version>${dep.gradoop.version}</version>
         </dependency>
 
+        <dependency>
+            <groupId>org.gradoop</groupId>
+            <artifactId>gradoop-temporal</artifactId>
+            <version>${dep.gradoop.version}</version>
+        </dependency>
+
         <!-- Apache Flink dependencies -->
         <dependency>
             <groupId>org.apache.flink</groupId>
@@ -113,6 +119,12 @@
                         </goals>
                         <configuration>
                             <minimizeJar>true</minimizeJar>
+                            <relocations>
+                                <relocation>
+                                    <pattern>org.apache.commons.cli</pattern>
+                                    <shadedPattern>org.gradoop.examples.thirdparty.commons_cli</shadedPattern>
+                                </relocation>
+                            </relocations>
                             <filters>
                                 <!-- Filters out signed files to avoid SecurityException when integrating a signed jar in the resulting jar. -->
                                 <filter>
