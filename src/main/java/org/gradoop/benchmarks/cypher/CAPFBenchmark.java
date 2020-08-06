@@ -23,6 +23,7 @@ import org.gradoop.benchmarks.AbstractRunner;
 import org.gradoop.common.model.impl.pojo.EPGMVertex;
 import org.gradoop.flink.model.impl.epgm.GraphCollection;
 import org.gradoop.flink.model.impl.epgm.LogicalGraph;
+import org.gradoop.flink.model.impl.operators.cypher.capf.query.CAPFQuery;
 import org.gradoop.flink.model.impl.operators.cypher.capf.result.CAPFQueryResult;
 
 import java.io.File;
@@ -113,7 +114,7 @@ public class CAPFBenchmark extends AbstractRunner {
 
     System.out.println(QUERY);
     // execute cypher with or without statistics
-    CAPFQueryResult result = graph.cypher(QUERY);
+    CAPFQueryResult result = new CAPFQuery(QUERY, getExecutionEnvironment()).execute(graph);
 
     if (result.containsGraphs()) {
       collection = result.getGraphs();
