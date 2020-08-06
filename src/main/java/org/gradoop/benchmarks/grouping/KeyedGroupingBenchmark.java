@@ -1,3 +1,19 @@
+/*
+ * Copyright © 2014 - 2020 Leipzig University (Database Research Group)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.gradoop.benchmarks.grouping;
 
 import org.apache.commons.cli.CommandLine;
@@ -40,37 +56,56 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * A dedicated program for the evaluation of the {@link KeyedGrouping} operator both on EPGM and TPGM graphs.
+ */
 public class KeyedGroupingBenchmark extends AbstractRunner {
 
   /**
    * Option to declare path to input graph
    */
   private static final String OPTION_INPUT_PATH = "i";
-
   /**
    * Option to declare path to output graph
    */
   private static final String OPTION_OUTPUT_PATH = "o";
-
+  /**
+   * Option to declare path to statistics file
+   */
+  private static final String OPTION_STATISTICS_PATH = "s";
+  /**
+   * Option to specify keyed grouping config
+   */
   private static final String OPTION_CONFIG = "c";
   /**
-   * Path to CSV log file
+   * Option to specify whether the benchmark operates on a temporal graph or not
    */
-  private static final String OPTION_STATISTICS_PATH = "csv";
-
   private static final String OPTION_TEMPORAL = "t";
-
+  /**
+   * Index of the selected config
+   */
   private static int SELECTED_CONFIG;
-
+  /**
+   * Path to the directory that contains {@link CSVDataSource} or {@link TemporalCSVDataSource} compatible
+   * graph data
+   */
   private static String INPUT_PATH;
-
+  /**
+   * Path to the directory the resulting graph data will be written to
+   */
   private static String OUTPUT_PATH;
-
+  /**
+   * Path to the statistics csv file
+   */
   private static String STATISTICS_PATH;
-
+  /**
+   * Flag which determines whether keyed grouping is applied to TPGM or EPGM graphs
+   */
   private static boolean IS_TEMPORAL;
-
-  private static TimeDimension DIMENSION = TimeDimension.VALID_TIME;
+  /**
+   * {@link TimeDimension} that is considered in the context of this benchmark.
+   */
+  private static final TimeDimension DIMENSION = TimeDimension.VALID_TIME;
 
   static {
     OPTIONS.addRequiredOption(OPTION_INPUT_PATH, "input", true, "Path to input csv directory");
@@ -80,7 +115,15 @@ public class KeyedGroupingBenchmark extends AbstractRunner {
     OPTIONS.addOption(OPTION_TEMPORAL, "temporal", false, "Apply temporal keyed grouping to input graph");
   }
 
-
+  /**
+   * Main program to run the benchmark.
+   * <p>
+   * Example: {@code $ /path/to/flink run -c org.gradoop.benchmarks.grouping.KeyedGroupingBenchmark
+   * /path/to/gradoop-benchmarks.jar -i hdfs:///graph -o hdfs:///output -s results.csv -c 1 --temporal}
+   *
+   * @param args program arguments
+   * @throws Exception in case of error
+   */
   public static void main(String[] args) throws Exception {
     CommandLine cmd = parseArguments(args, AggregationBenchmark.class.getName());
 
@@ -94,6 +137,7 @@ public class KeyedGroupingBenchmark extends AbstractRunner {
     ExecutionEnvironment env = ExecutionEnvironment.getExecutionEnvironment();
 
     if (IS_TEMPORAL) {
+      // Apply keyed grouping operation on TPGM graph
       TemporalGradoopConfig cfg = TemporalGradoopConfig.createConfig(env);
 
       TemporalDataSource source = new TemporalCSVDataSource(INPUT_PATH, cfg);
@@ -102,8 +146,10 @@ public class KeyedGroupingBenchmark extends AbstractRunner {
       TemporalGraph groupedGraph = graph.callForGraph(getTPGMGroupingConfig(SELECTED_CONFIG));
 
       TemporalCSVDataSink sink = new TemporalCSVDataSink(OUTPUT_PATH, cfg);
-      sink.write(groupedGraph);
+      sink.write(groupedGraph, true);
+
     } else {
+      // Apply keyed grouping operation on EPGM graph
       GradoopFlinkConfig cfg = GradoopFlinkConfig.createConfig(env);
 
       DataSource source = new CSVDataSource(INPUT_PATH, cfg);
@@ -112,7 +158,7 @@ public class KeyedGroupingBenchmark extends AbstractRunner {
       LogicalGraph groupedGraph = graph.callForGraph(getEPGMGroupingConfig(SELECTED_CONFIG));
 
       CSVDataSink sink = new CSVDataSink(OUTPUT_PATH, cfg);
-      sink.write(groupedGraph);
+      sink.write(groupedGraph, true);
     }
 
     env.execute(KeyedGrouping.class.getSimpleName() + " - P: " + env.getParallelism());
@@ -120,40 +166,56 @@ public class KeyedGroupingBenchmark extends AbstractRunner {
     writeStatistics(env);
   }
 
+  /**
+   * Returns a specific {@link KeyedGrouping} object which will be applied on a {@link TemporalGraph}.
+   * <p>
+   * This method is meant to be easily extendable in order to provide multiple keyed grouping configurations.
+   * @param select the selected keyed grouping configuration
+   * @return the selected {@link KeyedGrouping} object
+   */
   private static KeyedGrouping<
     TemporalGraphHead,
     TemporalVertex,
     TemporalEdge,
     TemporalGraph,
     TemporalGraphCollection> getTPGMGroupingConfig(int select) {
+
     List<KeyFunction<TemporalVertex, ?>> vertexKeys;
     List<KeyFunction<TemporalEdge, ?>> edgeKeys;
     List<AggregateFunction> vertexAggregateFunctions;
     List<AggregateFunction> edgeAggregateFunctions;
 
     switch (select) {
-      case 1:
-        vertexKeys = Arrays.asList(
-          GroupingKeys.label(),
-          TemporalGroupingKeys.timeStamp(DIMENSION, TimeDimension.Field.FROM, ChronoField.ALIGNED_WEEK_OF_YEAR));
-        edgeKeys = Arrays.asList(
-          GroupingKeys.label(),
-          TemporalGroupingKeys.timeStamp(DIMENSION, TimeDimension.Field.FROM, ChronoField.ALIGNED_WEEK_OF_YEAR));
+    case 1:
+      vertexKeys = Arrays.asList(
+        GroupingKeys.label(),
+        TemporalGroupingKeys.timeStamp(DIMENSION, TimeDimension.Field.FROM, ChronoField.ALIGNED_WEEK_OF_YEAR));
 
-        vertexAggregateFunctions = Arrays.asList(
-          new Count("count")
-        );
+      edgeKeys = Arrays.asList(
+        GroupingKeys.label(),
+        TemporalGroupingKeys.timeStamp(DIMENSION, TimeDimension.Field.FROM, ChronoField.ALIGNED_WEEK_OF_YEAR));
 
-        edgeAggregateFunctions = Arrays.asList(
-          new Count("count")
-        );
-        break;
-      default:
-        throw new IllegalArgumentException("Unsupported config: " + select);
+      vertexAggregateFunctions = Arrays.asList(
+        new Count("count")
+      );
+
+      edgeAggregateFunctions = Arrays.asList(
+        new Count("count")
+      );
+      break;
+    default:
+      throw new IllegalArgumentException("Unsupported config: " + select);
     }
     return new KeyedGrouping<>(vertexKeys, vertexAggregateFunctions, edgeKeys, edgeAggregateFunctions);
   }
 
+  /**
+   * Returns a specific {@link KeyedGrouping} object which will be applied on a {@link LogicalGraph}.
+   * <p>
+   * This method is meant to be easily extendable in order to provide multiple keyed grouping configurations.
+   * @param select the selected keyed grouping configuration
+   * @return the selected {@link KeyedGrouping} object
+   */
   private static KeyedGrouping<
     EPGMGraphHead,
     EPGMVertex,
@@ -167,40 +229,42 @@ public class KeyedGroupingBenchmark extends AbstractRunner {
     List<AggregateFunction> edgeAggregateFunctions;
 
     switch (select) {
-      case 1:
-        vertexKeys = Collections.singletonList(GroupingKeys.label());
-        edgeKeys = Collections.singletonList(GroupingKeys.label());
-        vertexAggregateFunctions = Collections.singletonList(new Count("count"));
-        edgeAggregateFunctions = Collections.singletonList(new Count("count"));
-        break;
-      default:
-        throw new IllegalArgumentException("Unsupported config: " + select);
+    case 1:
+      vertexKeys = Collections.singletonList(GroupingKeys.label());
+      edgeKeys = Collections.singletonList(GroupingKeys.label());
+      vertexAggregateFunctions = Collections.singletonList(new Count("count"));
+      edgeAggregateFunctions = Collections.singletonList(new Count("count"));
+      break;
+    default:
+      throw new IllegalArgumentException("Unsupported config: " + select);
     }
 
     return new KeyedGrouping<>(vertexKeys, vertexAggregateFunctions, edgeKeys, edgeAggregateFunctions);
   }
 
+  /**
+   * Read values from the given {@link CommandLine} object
+   *
+   * @param cmd the {@link CommandLine} object
+   */
   private static void readCMDArguments(CommandLine cmd) {
-    // read input output paths
     INPUT_PATH = cmd.getOptionValue(OPTION_INPUT_PATH);
     OUTPUT_PATH = cmd.getOptionValue(OPTION_OUTPUT_PATH);
     STATISTICS_PATH = cmd.getOptionValue(OPTION_STATISTICS_PATH);
-
-    String config = cmd.getOptionValue(OPTION_CONFIG);
-    SELECTED_CONFIG = Integer.parseInt(config);
-
+    SELECTED_CONFIG = Integer.parseInt(cmd.getOptionValue(OPTION_CONFIG));
     IS_TEMPORAL = cmd.hasOption(OPTION_TEMPORAL);
   }
 
   /**
-   * Method to create and add lines to a csv-file
+   * Method to create and add lines to a csv file which contains all necessary statistics about the
+   * {@link KeyedGrouping} operator.
    *
-   * @param env given ExecutionEnvironment
+   * @param env given {@link ExecutionEnvironment}
    * @throws IOException exception during file writing
    */
   private static void writeStatistics(ExecutionEnvironment env) throws IOException {
     String head = String
-      .format("%s|%s|%s|%s|%s",
+      .format("%s|%s|%s|%s|%s%n",
         "Parallelism",
         "dataset",
         "config",
@@ -208,7 +272,7 @@ public class KeyedGroupingBenchmark extends AbstractRunner {
         "Runtime(s)");
 
     String tail = String
-      .format("%s|%s|%s|%s|%s",
+      .format("%s|%s|%s|%s|%s%n",
         env.getParallelism(),
         INPUT_PATH,
         SELECTED_CONFIG,
