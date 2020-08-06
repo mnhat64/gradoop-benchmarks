@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.gradoop.benchmarks.grouping;
 
 import org.apache.commons.cli.CommandLine;
@@ -41,6 +40,8 @@ import org.gradoop.temporal.io.impl.csv.TemporalCSVDataSource;
 import org.gradoop.temporal.model.api.TimeDimension;
 import org.gradoop.temporal.model.impl.TemporalGraph;
 import org.gradoop.temporal.model.impl.TemporalGraphCollection;
+import org.gradoop.temporal.model.impl.operators.aggregation.functions.MaxTime;
+import org.gradoop.temporal.model.impl.operators.aggregation.functions.MinTime;
 import org.gradoop.temporal.model.impl.operators.keyedgrouping.TemporalGroupingKeys;
 import org.gradoop.temporal.model.impl.pojo.TemporalEdge;
 import org.gradoop.temporal.model.impl.pojo.TemporalGraphHead;
@@ -131,7 +132,6 @@ public class KeyedGroupingBenchmark extends AbstractRunner {
       return;
     }
 
-    // read cmd arguments
     readCMDArguments(cmd);
 
     ExecutionEnvironment env = ExecutionEnvironment.getExecutionEnvironment();
@@ -170,6 +170,7 @@ public class KeyedGroupingBenchmark extends AbstractRunner {
    * Returns a specific {@link KeyedGrouping} object which will be applied on a {@link TemporalGraph}.
    * <p>
    * This method is meant to be easily extendable in order to provide multiple keyed grouping configurations.
+   *
    * @param select the selected keyed grouping configuration
    * @return the selected {@link KeyedGrouping} object
    */
@@ -189,23 +190,71 @@ public class KeyedGroupingBenchmark extends AbstractRunner {
     case 1:
       vertexKeys = Arrays.asList(
         GroupingKeys.label(),
-        TemporalGroupingKeys.timeStamp(DIMENSION, TimeDimension.Field.FROM, ChronoField.ALIGNED_WEEK_OF_YEAR));
+        TemporalGroupingKeys.timeStamp(
+          DIMENSION,
+          TimeDimension.Field.FROM,
+          ChronoField.ALIGNED_WEEK_OF_YEAR));
 
       edgeKeys = Arrays.asList(
         GroupingKeys.label(),
-        TemporalGroupingKeys.timeStamp(DIMENSION, TimeDimension.Field.FROM, ChronoField.ALIGNED_WEEK_OF_YEAR));
+        TemporalGroupingKeys.timeStamp(
+          DIMENSION,
+          TimeDimension.Field.FROM,
+          ChronoField.ALIGNED_WEEK_OF_YEAR));
+
+      vertexAggregateFunctions = Arrays.asList(new Count("count"));
+
+      edgeAggregateFunctions = Arrays.asList(new Count("count"));
+      break;
+
+    case 2:
+      vertexKeys = Arrays.asList(
+        GroupingKeys.label(),
+        TemporalGroupingKeys.timeStamp(
+          DIMENSION,
+          TimeDimension.Field.FROM,
+          ChronoField.ALIGNED_WEEK_OF_MONTH));
+
+      edgeKeys = Arrays.asList(
+        GroupingKeys.label(),
+        TemporalGroupingKeys.timeStamp(
+          DIMENSION,
+          TimeDimension.Field.FROM,
+          ChronoField.ALIGNED_WEEK_OF_MONTH));
 
       vertexAggregateFunctions = Arrays.asList(
-        new Count("count")
-      );
+        new Count("count"),
+        new MinTime("min", DIMENSION, TimeDimension.Field.FROM));
+
+      edgeAggregateFunctions = Arrays.asList(new Count("count"));
+      break;
+
+    case 3:
+      vertexKeys = Arrays.asList(
+        GroupingKeys.label(),
+        TemporalGroupingKeys.timeStamp(
+          DIMENSION,
+          TimeDimension.Field.TO,
+          ChronoField.ALIGNED_DAY_OF_WEEK_IN_MONTH));
+
+      edgeKeys = Arrays.asList(
+        GroupingKeys.label(),
+        TemporalGroupingKeys.timeStamp(
+          DIMENSION,
+          TimeDimension.Field.TO,
+          ChronoField.ALIGNED_DAY_OF_WEEK_IN_MONTH));
+
+      vertexAggregateFunctions = Arrays.asList(new Count("count"));
 
       edgeAggregateFunctions = Arrays.asList(
-        new Count("count")
-      );
+        new Count("count"),
+        new MaxTime("maxTime", DIMENSION, TimeDimension.Field.TO));
       break;
+
     default:
       throw new IllegalArgumentException("Unsupported config: " + select);
     }
+
     return new KeyedGrouping<>(vertexKeys, vertexAggregateFunctions, edgeKeys, edgeAggregateFunctions);
   }
 
@@ -213,6 +262,7 @@ public class KeyedGroupingBenchmark extends AbstractRunner {
    * Returns a specific {@link KeyedGrouping} object which will be applied on a {@link LogicalGraph}.
    * <p>
    * This method is meant to be easily extendable in order to provide multiple keyed grouping configurations.
+   *
    * @param select the selected keyed grouping configuration
    * @return the selected {@link KeyedGrouping} object
    */
@@ -235,6 +285,14 @@ public class KeyedGroupingBenchmark extends AbstractRunner {
       vertexAggregateFunctions = Collections.singletonList(new Count("count"));
       edgeAggregateFunctions = Collections.singletonList(new Count("count"));
       break;
+
+    case 2:
+      vertexKeys = Collections.singletonList(GroupingKeys.nothing());
+      edgeKeys = Collections.singletonList(GroupingKeys.label());
+      vertexAggregateFunctions = Collections.singletonList(new Count("count"));
+      edgeAggregateFunctions = Collections.singletonList(new Count("count"));
+      break;
+
     default:
       throw new IllegalArgumentException("Unsupported config: " + select);
     }
@@ -289,5 +347,4 @@ public class KeyedGroupingBenchmark extends AbstractRunner {
       writer.close();
     }
   }
-
 }
