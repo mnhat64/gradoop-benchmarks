@@ -224,31 +224,26 @@ public class KeyedGroupingBenchmark extends AbstractRunner {
 
       vertexAggregateFunctions = Arrays.asList(
         new Count("count"),
-        new MinTime("min", DIMENSION, TimeDimension.Field.FROM));
+        new MinTime("minTime", DIMENSION, TimeDimension.Field.FROM));
 
       edgeAggregateFunctions = Arrays.asList(new Count("count"));
       break;
 
     case 3:
-      vertexKeys = Arrays.asList(
-        GroupingKeys.label(),
-        TemporalGroupingKeys.timeStamp(
-          DIMENSION,
-          TimeDimension.Field.TO,
-          ChronoField.ALIGNED_DAY_OF_WEEK_IN_MONTH));
+      vertexKeys = Arrays.asList(GroupingKeys.label());
 
       edgeKeys = Arrays.asList(
         GroupingKeys.label(),
         TemporalGroupingKeys.timeStamp(
           DIMENSION,
-          TimeDimension.Field.TO,
+          TimeDimension.Field.FROM,
           ChronoField.ALIGNED_DAY_OF_WEEK_IN_MONTH));
 
       vertexAggregateFunctions = Arrays.asList(new Count("count"));
 
       edgeAggregateFunctions = Arrays.asList(
         new Count("count"),
-        new MaxTime("maxTime", DIMENSION, TimeDimension.Field.TO));
+        new MaxTime("maxTime", DIMENSION, TimeDimension.Field.FROM));
       break;
 
     default:
