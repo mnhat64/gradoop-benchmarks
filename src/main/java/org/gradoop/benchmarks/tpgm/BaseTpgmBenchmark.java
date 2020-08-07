@@ -64,7 +64,7 @@ abstract class BaseTpgmBenchmark extends AbstractRunner {
   /**
    * Used output path
    */
-  private static String OUTPUT_PATH;
+  static String OUTPUT_PATH;
   /**
    * Used csv path
    */
