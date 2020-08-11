@@ -71,13 +71,13 @@ public class KeyedGroupingBenchmark extends AbstractRunner {
    */
   private static final String OPTION_OUTPUT_PATH = "o";
   /**
-   * Option to declare path to statistics file
+   * Option to declare output path to csv file with execution results
    */
-  private static final String OPTION_STATISTICS_PATH = "s";
+  private static final String OPTION_CSV_PATH = "c";
   /**
    * Option to specify keyed grouping config
    */
-  private static final String OPTION_CONFIG = "c";
+  private static final String OPTION_CONFIG = "g";
   /**
    * Option to specify whether the benchmark operates on a temporal graph or not
    */
@@ -98,7 +98,7 @@ public class KeyedGroupingBenchmark extends AbstractRunner {
   /**
    * Path to the statistics csv file
    */
-  private static String STATISTICS_PATH;
+  private static String CSV_PATH;
   /**
    * Flag which determines whether keyed grouping is applied to TPGM or EPGM graphs
    */
@@ -111,7 +111,8 @@ public class KeyedGroupingBenchmark extends AbstractRunner {
   static {
     OPTIONS.addRequiredOption(OPTION_INPUT_PATH, "input", true, "Path to input csv directory");
     OPTIONS.addRequiredOption(OPTION_OUTPUT_PATH, "output", true, "Path to output directory");
-    OPTIONS.addRequiredOption(OPTION_STATISTICS_PATH, "statistics", true, "Path to statistics csv file");
+    OPTIONS.addRequiredOption(OPTION_CSV_PATH, "csv", true,
+      "Path to csv result file (will be created if not available).");
     OPTIONS.addRequiredOption(OPTION_CONFIG, "config", true, "Select predefined configuration");
     OPTIONS.addOption(OPTION_TEMPORAL, "temporal", false, "Apply temporal keyed grouping to input graph");
   }
@@ -120,7 +121,7 @@ public class KeyedGroupingBenchmark extends AbstractRunner {
    * Main program to run the benchmark.
    * <p>
    * Example: {@code $ /path/to/flink run -c org.gradoop.benchmarks.grouping.KeyedGroupingBenchmark
-   * /path/to/gradoop-benchmarks.jar -i hdfs:///graph -o hdfs:///output -s results.csv -c 1 --temporal}
+   * /path/to/gradoop-benchmarks.jar -i hdfs:///graph -o hdfs:///output -c results.csv -g 1 --temporal}
    *
    * @param args program arguments
    * @throws Exception in case of error
@@ -161,7 +162,8 @@ public class KeyedGroupingBenchmark extends AbstractRunner {
       sink.write(groupedGraph, true);
     }
 
-    env.execute(KeyedGrouping.class.getSimpleName() + " - P: " + env.getParallelism());
+    env.execute(KeyedGrouping.class.getSimpleName() + " - C: " + SELECTED_CONFIG + "- P: "
+      + env.getParallelism());
 
     writeStatistics(env);
   }
@@ -202,9 +204,9 @@ public class KeyedGroupingBenchmark extends AbstractRunner {
           TimeDimension.Field.FROM,
           ChronoField.ALIGNED_WEEK_OF_YEAR));
 
-      vertexAggregateFunctions = Arrays.asList(new Count("count"));
+      vertexAggregateFunctions = Collections.singletonList(new Count("count"));
 
-      edgeAggregateFunctions = Arrays.asList(new Count("count"));
+      edgeAggregateFunctions = Collections.singletonList(new Count("count"));
       break;
 
     case 2:
@@ -226,11 +228,11 @@ public class KeyedGroupingBenchmark extends AbstractRunner {
         new Count("count"),
         new MinTime("minTime", DIMENSION, TimeDimension.Field.FROM));
 
-      edgeAggregateFunctions = Arrays.asList(new Count("count"));
+      edgeAggregateFunctions = Collections.singletonList(new Count("count"));
       break;
 
     case 3:
-      vertexKeys = Arrays.asList(GroupingKeys.label());
+      vertexKeys = Collections.singletonList(GroupingKeys.label());
 
       edgeKeys = Arrays.asList(
         GroupingKeys.label(),
@@ -239,7 +241,7 @@ public class KeyedGroupingBenchmark extends AbstractRunner {
           TimeDimension.Field.FROM,
           ChronoField.ALIGNED_DAY_OF_WEEK_IN_MONTH));
 
-      vertexAggregateFunctions = Arrays.asList(new Count("count"));
+      vertexAggregateFunctions = Collections.singletonList(new Count("count"));
 
       edgeAggregateFunctions = Arrays.asList(
         new Count("count"),
@@ -303,7 +305,7 @@ public class KeyedGroupingBenchmark extends AbstractRunner {
   private static void readCMDArguments(CommandLine cmd) {
     INPUT_PATH = cmd.getOptionValue(OPTION_INPUT_PATH);
     OUTPUT_PATH = cmd.getOptionValue(OPTION_OUTPUT_PATH);
-    STATISTICS_PATH = cmd.getOptionValue(OPTION_STATISTICS_PATH);
+    CSV_PATH = cmd.getOptionValue(OPTION_CSV_PATH);
     SELECTED_CONFIG = Integer.parseInt(cmd.getOptionValue(OPTION_CONFIG));
     IS_TEMPORAL = cmd.hasOption(OPTION_TEMPORAL);
   }
@@ -332,11 +334,11 @@ public class KeyedGroupingBenchmark extends AbstractRunner {
         IS_TEMPORAL,
         env.getLastJobExecutionResult().getNetRuntime(TimeUnit.SECONDS));
 
-    File f = new File(STATISTICS_PATH);
+    File f = new File(CSV_PATH);
     if (f.exists() && !f.isDirectory()) {
       FileUtils.writeStringToFile(f, tail, true);
     } else {
-      PrintWriter writer = new PrintWriter(STATISTICS_PATH, "UTF-8");
+      PrintWriter writer = new PrintWriter(CSV_PATH, "UTF-8");
       writer.print(head);
       writer.print(tail);
       writer.close();

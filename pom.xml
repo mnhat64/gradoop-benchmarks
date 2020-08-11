@@ -36,6 +36,7 @@
         <license.licenseName>apache_v2</license.licenseName>
 
         <dep.gradoop.version>0.6.0-SNAPSHOT</dep.gradoop.version>
+        <dep.gradoop-capf.version>0.5.1</dep.gradoop-capf.version>
         <dep.flink.version>1.7.2</dep.flink.version>
         <dep.commons-cli.version>1.4</dep.commons-cli.version>
 
@@ -70,7 +71,7 @@
         <dependency>
             <groupId>org.gradoop</groupId>
             <artifactId>gradoop-capf</artifactId>
-            <version>0.5.1</version>
+            <version>${dep.gradoop-capf.version}</version>
         </dependency>
 
         <!-- Apache Flink dependencies -->
