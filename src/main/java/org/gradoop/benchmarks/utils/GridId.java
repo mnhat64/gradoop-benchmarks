@@ -19,10 +19,19 @@ import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.gradoop.flink.model.api.functions.KeyFunction;
 import org.gradoop.temporal.model.impl.pojo.TemporalVertex;
 
+/**
+ * Grouping key function to extract a grid id.
+ */
 public class GridId implements KeyFunction<TemporalVertex, Integer> {
 
+  /**
+   * Get the grid cell id as integer.
+   *
+   * @param element the vertex to extract the lat and long information
+   * @return the grid cell id
+   */
   @Override
-  public  Integer getKey(TemporalVertex element) {
+  public Integer getKey(TemporalVertex element) {
     float lon;
     float lat;
     lon = !element.getPropertyValue("long").getString().equals("NULL") ? Float.parseFloat(element.getPropertyValue("long").getString()) : -1;
@@ -34,6 +43,12 @@ public class GridId implements KeyFunction<TemporalVertex, Integer> {
     }
   }
 
+  /**
+   * Adds information about the grid cells to the resulting super vertex.
+   *
+   * @param element the vertex to extend
+   * @param key the key object of that super vertex, i.e., the cell id
+   */
   @Override
   public void addKeyToElement(TemporalVertex element, Object key) {
     element.setProperty("gridId", key);

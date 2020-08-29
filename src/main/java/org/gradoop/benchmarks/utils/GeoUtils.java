@@ -18,6 +18,9 @@ package org.gradoop.benchmarks.utils;
 
 /**
  * GeoUtils provides utility methods to deal with locations in New York City.
+ *
+ * This code is partly used from org.apache.flink.training.exercises.common.utils.GeoUtils
+ * of the Apache Flink training exercises.
  */
 public class GeoUtils {
 
