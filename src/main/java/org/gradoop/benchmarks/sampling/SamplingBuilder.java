@@ -15,6 +15,11 @@
  */
 package org.gradoop.benchmarks.sampling;
 
+import org.gradoop.common.model.impl.pojo.EPGMEdge;
+import org.gradoop.common.model.impl.pojo.EPGMGraphHead;
+import org.gradoop.common.model.impl.pojo.EPGMVertex;
+import org.gradoop.flink.model.impl.epgm.GraphCollection;
+import org.gradoop.flink.model.impl.epgm.LogicalGraph;
 import org.gradoop.flink.model.impl.operators.sampling.PageRankSampling;
 import org.gradoop.flink.model.impl.operators.sampling.RandomEdgeSampling;
 import org.gradoop.flink.model.impl.operators.sampling.RandomLimitedDegreeVertexSampling;
@@ -78,7 +83,8 @@ class SamplingBuilder {
    * @param constructorParams Array containing parameters used to construct a sampling algorithm.
    * @return SamplingAlgorithm specified by const SELECTED_ALGORITHM.
    */
-  static SamplingAlgorithm buildSelectedSamplingAlgorithm(int ordinal, String[] constructorParams) {
+  static SamplingAlgorithm<EPGMGraphHead, EPGMVertex, EPGMEdge, LogicalGraph, GraphCollection>
+  buildSelectedSamplingAlgorithm(int ordinal, String[] constructorParams) {
 
     performSanityCheck(ordinal);
 
@@ -86,7 +92,7 @@ class SamplingBuilder {
 
     case PAGE_RANK_SAMPLING:
       if (constructorParams.length == 5) {
-        return new PageRankSampling(
+        return new PageRankSampling<>(
           Double.parseDouble(constructorParams[0]),
           Integer.parseInt(constructorParams[1]),
           Double.parseDouble(constructorParams[2]),
@@ -99,9 +105,9 @@ class SamplingBuilder {
 
     case RANDOM_EDGE_SAMPLING:
       if (constructorParams.length == 1) {
-        return new RandomEdgeSampling(Float.parseFloat(constructorParams[0]));
+        return new RandomEdgeSampling<>(Float.parseFloat(constructorParams[0]));
       } else if (constructorParams.length == 2) {
-        return new RandomEdgeSampling(Float.parseFloat(constructorParams[0]),
+        return new RandomEdgeSampling<>(Float.parseFloat(constructorParams[0]),
           Long.parseLong(constructorParams[1]));
       } else {
         throw createInstantiationException(Algorithm.RANDOM_EDGE_SAMPLING.name,
@@ -110,9 +116,9 @@ class SamplingBuilder {
 
     case RANDOM_LIMITED_DEGREE_VERTEX_SAMPLING:
       if (constructorParams.length == 1) {
-        return new RandomLimitedDegreeVertexSampling(Float.parseFloat(constructorParams[0]));
+        return new RandomLimitedDegreeVertexSampling<>(Float.parseFloat(constructorParams[0]));
       } else if (constructorParams.length == 2) {
-        return new RandomLimitedDegreeVertexSampling(Float.parseFloat(constructorParams[0]),
+        return new RandomLimitedDegreeVertexSampling<>(Float.parseFloat(constructorParams[0]),
           Long.parseLong(constructorParams[1]));
       } else {
         throw createInstantiationException(Algorithm.RANDOM_LIMITED_DEGREE_VERTEX_SAMPLING.name,
@@ -121,9 +127,9 @@ class SamplingBuilder {
 
     case RANDOM_NON_UNIFORM_VERTEX_SAMPLING:
       if (constructorParams.length == 1) {
-        return new RandomNonUniformVertexSampling(Float.parseFloat(constructorParams[0]));
+        return new RandomNonUniformVertexSampling<>(Float.parseFloat(constructorParams[0]));
       } else if (constructorParams.length == 2) {
-        return new RandomNonUniformVertexSampling(Float.parseFloat(constructorParams[0]),
+        return new RandomNonUniformVertexSampling<>(Float.parseFloat(constructorParams[0]),
           Long.parseLong(constructorParams[1]));
       } else {
         throw createInstantiationException(Algorithm.RANDOM_NON_UNIFORM_VERTEX_SAMPLING.name,
@@ -132,9 +138,9 @@ class SamplingBuilder {
 
     case RANDOM_VERTEX_EDGE_SAMPLING:
       if (constructorParams.length == 1) {
-        return new RandomVertexEdgeSampling(Float.parseFloat(constructorParams[0]));
+        return new RandomVertexEdgeSampling<>(Float.parseFloat(constructorParams[0]));
       } else if (constructorParams.length == 2) {
-        return new RandomVertexEdgeSampling(Float.parseFloat(constructorParams[0]),
+        return new RandomVertexEdgeSampling<>(Float.parseFloat(constructorParams[0]),
           Float.parseFloat(constructorParams[1]));
       } else {
         throw createInstantiationException(Algorithm.RANDOM_VERTEX_EDGE_SAMPLING.name,
@@ -143,9 +149,9 @@ class SamplingBuilder {
 
     case RANDOM_VERTEX_NEIGHBORHOOD_SAMPLING:
       if (constructorParams.length == 1) {
-        return new RandomVertexNeighborhoodSampling(Float.parseFloat(constructorParams[0]));
+        return new RandomVertexNeighborhoodSampling<>(Float.parseFloat(constructorParams[0]));
       } else if (constructorParams.length == 2) {
-        return new RandomVertexNeighborhoodSampling(Float.parseFloat(constructorParams[0]),
+        return new RandomVertexNeighborhoodSampling<>(Float.parseFloat(constructorParams[0]),
           Long.parseLong(constructorParams[1]));
       } else {
         throw createInstantiationException(Algorithm.RANDOM_VERTEX_NEIGHBORHOOD_SAMPLING.name,
@@ -154,9 +160,9 @@ class SamplingBuilder {
 
     case RANDOM_VERTEX_SAMPLING:
       if (constructorParams.length == 1) {
-        return new RandomVertexSampling(Float.parseFloat(constructorParams[0]));
+        return new RandomVertexSampling<>(Float.parseFloat(constructorParams[0]));
       } else if (constructorParams.length == 2) {
-        return new RandomVertexSampling(Float.parseFloat(constructorParams[0]),
+        return new RandomVertexSampling<>(Float.parseFloat(constructorParams[0]),
           Long.parseLong(constructorParams[1]));
       } else {
         throw createInstantiationException(Algorithm.RANDOM_VERTEX_SAMPLING.name,
@@ -165,15 +171,15 @@ class SamplingBuilder {
 
     case RANDOM_WALK_SAMPLING:
       if (constructorParams.length == 2) {
-        return new RandomWalkSampling(Float.parseFloat(constructorParams[0]),
+        return new RandomWalkSampling<>(Float.parseFloat(constructorParams[0]),
           Integer.parseInt(constructorParams[1]));
       } else if (constructorParams.length == 4) {
-        return new RandomWalkSampling(Float.parseFloat(constructorParams[0]),
+        return new RandomWalkSampling<>(Float.parseFloat(constructorParams[0]),
           Integer.parseInt(constructorParams[1]), Float.parseFloat(constructorParams[2]),
           Integer.parseInt(constructorParams[3]));
       } else {
         throw createInstantiationException(Algorithm.RANDOM_WALK_SAMPLING.name,
-        new String[]{"1", "2"}, constructorParams.length);
+          new String[]{"1", "2"}, constructorParams.length);
       }
 
     default:

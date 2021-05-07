@@ -19,6 +19,10 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.io.FileUtils;
 import org.apache.flink.api.java.ExecutionEnvironment;
 import org.gradoop.benchmarks.AbstractRunner;
+import org.gradoop.common.model.impl.pojo.EPGMEdge;
+import org.gradoop.common.model.impl.pojo.EPGMGraphHead;
+import org.gradoop.common.model.impl.pojo.EPGMVertex;
+import org.gradoop.flink.model.impl.epgm.GraphCollection;
 import org.gradoop.flink.model.impl.epgm.LogicalGraph;
 import org.gradoop.flink.model.impl.operators.sampling.SamplingAlgorithm;
 
@@ -135,13 +139,13 @@ public class SamplingBenchmark extends AbstractRunner {
     LogicalGraph graph = readLogicalGraph(INPUT_PATH, INPUT_FORMAT);
 
     // instantiate selected sampling algorithm and create sample
-    SamplingAlgorithm algorithm = SamplingBuilder.buildSelectedSamplingAlgorithm(
-      SELECTED_ALGORITHM, CONSTRUCTOR_PARAMS);
-    LogicalGraph graphSample = algorithm.execute(graph);
+    final SamplingAlgorithm<EPGMGraphHead, EPGMVertex, EPGMEdge, LogicalGraph, GraphCollection>
+      algorithm = SamplingBuilder.buildSelectedSamplingAlgorithm(SELECTED_ALGORITHM, CONSTRUCTOR_PARAMS);
+    LogicalGraph graphSample = graph.callForGraph(algorithm);
 
     // write graph sample and benchmark data
     writeLogicalGraph(graphSample, OUTPUT_PATH + OUTPUT_PATH_GRAPH_SAMPLE_SUFFIX);
-    writeBenchmark(graphSample.getConfig().getExecutionEnvironment(), algorithm);
+    writeBenchmark(graphSample.getConfig().getExecutionEnvironment(), algorithm.getClass().getSimpleName());
   }
 
   /**
@@ -161,11 +165,11 @@ public class SamplingBenchmark extends AbstractRunner {
    * Method to crate and add lines to a benchmark file.
    *
    * @param env given ExecutionEnvironment
-   * @param sampling sampling algorithm under test
+   * @param samplingName sampling algorithm name
    * @throws IOException exception during file writing
    */
-  private static void writeBenchmark(ExecutionEnvironment env, SamplingAlgorithm sampling)
-      throws IOException {
+  private static void writeBenchmark(ExecutionEnvironment env, String samplingName)
+    throws IOException {
     String head = String.format("%s|%s|%s|%s|%s%n",
       "Parallelism",
       "Dataset",
@@ -174,7 +178,6 @@ public class SamplingBenchmark extends AbstractRunner {
       "Runtime [s]");
 
     // build log
-    String samplingName = sampling.getClass().getSimpleName();
     String tail = String.format("%s|%s|%s|%s|%s%n",
       env.getParallelism(),
       INPUT_PATH.substring(INPUT_PATH.lastIndexOf(File.separator) + 1),
