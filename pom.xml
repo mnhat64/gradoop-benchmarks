@@ -35,9 +35,9 @@
 
         <license.licenseName>apache_v2</license.licenseName>
 
-        <dep.gradoop.version>0.6.0-SNAPSHOT</dep.gradoop.version>
+        <dep.gradoop.version>0.7.0-SNAPSHOT</dep.gradoop.version>
         <dep.gradoop-capf.version>0.5.1</dep.gradoop-capf.version>
-        <dep.flink.version>1.7.2</dep.flink.version>
+        <dep.flink.version>1.9.3</dep.flink.version>
         <dep.commons-cli.version>1.4</dep.commons-cli.version>
 
         <plugin.maven-compiler.version>3.8.0</plugin.maven-compiler.version>
