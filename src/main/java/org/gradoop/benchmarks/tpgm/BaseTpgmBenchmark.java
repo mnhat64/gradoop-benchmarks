@@ -45,6 +45,10 @@ abstract class BaseTpgmBenchmark extends AbstractRunner {
    */
   private static final String OPTION_INPUT_PATH = "i";
   /**
+   * Option to declare the graph input format (csv or indexed).
+   */
+  private static final String OPTION_INPUT_FORMAT = "f";
+  /**
    * Option to declare path to output graph
    */
   private static final String OPTION_OUTPUT_PATH = "o";
@@ -62,6 +66,10 @@ abstract class BaseTpgmBenchmark extends AbstractRunner {
    */
   static String INPUT_PATH;
   /**
+   * Used input format (csv or indexed)
+   */
+  static String INPUT_FORMAT;
+  /**
    * Used output path
    */
   static String OUTPUT_PATH;
@@ -76,6 +84,7 @@ abstract class BaseTpgmBenchmark extends AbstractRunner {
 
   static {
     OPTIONS.addRequiredOption(OPTION_INPUT_PATH, "input", true, "Path to source files.");
+    OPTIONS.addOption(OPTION_INPUT_FORMAT, "format", true, "Input graph format (csv (default), indexed).");
     OPTIONS.addRequiredOption(OPTION_OUTPUT_PATH, "output", true, "Path to output file.");
     OPTIONS.addRequiredOption(OPTION_CSV_PATH, "csv", true,
       "Path to csv result file (will be created if not available).");
@@ -122,6 +131,7 @@ abstract class BaseTpgmBenchmark extends AbstractRunner {
    */
   static void readBaseCMDArguments(CommandLine cmd) {
     INPUT_PATH   = cmd.getOptionValue(OPTION_INPUT_PATH);
+    INPUT_FORMAT = cmd.getOptionValue(OPTION_INPUT_FORMAT);
     OUTPUT_PATH  = cmd.getOptionValue(OPTION_OUTPUT_PATH);
     CSV_PATH     = cmd.getOptionValue(OPTION_CSV_PATH);
     COUNT_RESULT = cmd.hasOption(OPTION_COUNT_RESULT);
@@ -147,5 +157,4 @@ abstract class BaseTpgmBenchmark extends AbstractRunner {
     Files.write(path, linesToWrite, StandardCharsets.UTF_8, StandardOpenOption.CREATE,
       StandardOpenOption.APPEND);
   }
-
 }

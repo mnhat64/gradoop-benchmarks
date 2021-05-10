@@ -1,5 +1,5 @@
 /*
- * Copyright © 2014 - 2020 Leipzig University (Database Research Group)
+ * Copyright © 2014 - 2021 Leipzig University (Database Research Group)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,14 +23,12 @@ import org.gradoop.flink.model.impl.operators.aggregation.functions.count.Count;
 import org.gradoop.flink.model.impl.operators.combination.ReduceCombination;
 import org.gradoop.flink.model.impl.operators.keyedgrouping.GroupingKeys;
 import org.gradoop.flink.model.impl.operators.keyedgrouping.KeyedGrouping;
-import org.gradoop.temporal.io.impl.csv.TemporalCSVDataSource;
 import org.gradoop.temporal.model.api.TimeDimension;
 import org.gradoop.temporal.model.impl.TemporalGraph;
 import org.gradoop.temporal.model.impl.functions.predicates.Overlaps;
 import org.gradoop.temporal.model.impl.operators.aggregation.functions.AverageDuration;
 import org.gradoop.temporal.model.impl.operators.keyedgrouping.TemporalGroupingKeys;
 import org.gradoop.temporal.model.impl.pojo.TemporalVertex;
-import org.gradoop.temporal.util.TemporalGradoopConfig;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -45,8 +43,6 @@ import static org.gradoop.temporal.model.api.TimeDimension.VALID_TIME;
  * The benchmark is expected to be executed on the Citibike data set.
  */
 public class CitibikeBenchmark extends BaseTpgmBenchmark {
-
-
   /**
    * Main program to run the benchmark.
    * <p>
@@ -65,13 +61,7 @@ public class CitibikeBenchmark extends BaseTpgmBenchmark {
 
     readBaseCMDArguments(cmd);
 
-    ExecutionEnvironment env = ExecutionEnvironment.getExecutionEnvironment();
-    TemporalGradoopConfig cfg = TemporalGradoopConfig.createConfig(env);
-
-    TemporalCSVDataSource source = new TemporalCSVDataSource(INPUT_PATH, cfg);
-
-    TemporalGraph citibikeGraph = source
-      .getTemporalGraph()
+    TemporalGraph citibikeGraph = readTemporalGraph(INPUT_PATH, INPUT_FORMAT)
       // Snapshot
       .snapshot(new Overlaps(LocalDateTime.of(2017,1,1,0,0), LocalDateTime.of(2019,1,1,0,0)), VALID_TIME)
       // Transformation
@@ -86,7 +76,7 @@ public class CitibikeBenchmark extends BaseTpgmBenchmark {
         "AND v2.id != v3.id " +
         "AND v3.id != v1.id " +
         // A performance optimization trick
-        "AND v1.tx_to > 1970-01-01" +
+        //"AND v1.tx_to > 1970-01-01" +
         //"AND t1.bike_id = t2.bike_id " +
         "AND t1.val.precedes(t2.val) " +
         "AND t1.val.lengthAtLeast(Minutes(30)) " +
@@ -97,15 +87,19 @@ public class CitibikeBenchmark extends BaseTpgmBenchmark {
       .callForGraph(
         new KeyedGrouping<>(
           // Vertex grouping key functions
-          Arrays.asList(GroupingKeys.label(), GroupingKeys.property("name"), GroupingKeys.property("id"),
+          Arrays.asList(
+            GroupingKeys.label(),
+            GroupingKeys.property("name"),
             GroupingKeys.property("cellId")),
           // Vertex aggregates
           null,
           // Edge grouping key functions
-          Arrays.asList(GroupingKeys.label(),
+          Arrays.asList(
+            GroupingKeys.label(),
             TemporalGroupingKeys.timeStamp(VALID_TIME, TimeDimension.Field.FROM, ChronoField.MONTH_OF_YEAR)),
           // Edge aggregates
-          Arrays.asList(new Count("countTripsOfMonth"),
+          Arrays.asList(
+            new Count("countTripsOfMonth"),
             new AverageDuration("avgTripDurationOfMonth", VALID_TIME))))
       // Subgraph
       .subgraph(
@@ -113,7 +107,9 @@ public class CitibikeBenchmark extends BaseTpgmBenchmark {
         e -> e.getPropertyValue("countTripsOfMonth").getLong() >= 1)
       .verify();
 
-    writeOrCountGraph(citibikeGraph, cfg);
+    writeOrCountGraph(citibikeGraph, citibikeGraph.getConfig());
+
+    ExecutionEnvironment env = citibikeGraph.getConfig().getExecutionEnvironment();
 
     env.execute(CitibikeBenchmark.class.getSimpleName() + " - P: " + env.getParallelism());
     writeCSV(env);
@@ -133,5 +129,4 @@ public class CitibikeBenchmark extends BaseTpgmBenchmark {
 
     writeToCSVFile(head, tail);
   }
-
 }

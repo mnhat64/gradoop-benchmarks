@@ -29,6 +29,14 @@ import org.gradoop.flink.io.impl.csv.indexed.IndexedCSVDataSink;
 import org.gradoop.flink.io.impl.csv.indexed.IndexedCSVDataSource;
 import org.gradoop.flink.model.impl.epgm.LogicalGraph;
 import org.gradoop.flink.util.GradoopFlinkConfig;
+import org.gradoop.temporal.io.api.TemporalDataSink;
+import org.gradoop.temporal.io.api.TemporalDataSource;
+import org.gradoop.temporal.io.impl.csv.TemporalCSVDataSink;
+import org.gradoop.temporal.io.impl.csv.TemporalCSVDataSource;
+import org.gradoop.temporal.io.impl.csv.indexed.TemporalIndexedCSVDataSink;
+import org.gradoop.temporal.io.impl.csv.indexed.TemporalIndexedCSVDataSource;
+import org.gradoop.temporal.model.impl.TemporalGraph;
+import org.gradoop.temporal.util.TemporalGradoopConfig;
 
 import java.io.File;
 import java.io.IOException;
@@ -87,9 +95,22 @@ public abstract class AbstractRunner {
    * @return EPGM logical graph
    * @throws IOException on failure
    */
-  protected static LogicalGraph readLogicalGraph(String directory, String format)
-      throws IOException {
+  protected static LogicalGraph readLogicalGraph(String directory, String format) throws IOException {
     return getDataSource(directory, format).getLogicalGraph();
+  }
+
+  /**
+   * Reads a TPGM graph from a given directory. Currently there are two supported formats: {@code csv} which
+   * uses a {@link TemporalCSVDataSource} and {@code indexed} which uses a
+   * {@link TemporalIndexedCSVDataSource}.
+   *
+   * @param directory path to the TPGM database
+   * @param format format in which the graph is stored (csv, indexed)
+   * @return a TPGM graph instance
+   * @throws IOException in case of an error
+   */
+  protected static TemporalGraph readTemporalGraph(String directory, String format) throws IOException {
+    return getTemporalDataSource(directory, format).getTemporalGraph();
   }
 
   /**
@@ -108,12 +129,26 @@ public abstract class AbstractRunner {
    *
    * @param graph logical graph
    * @param directory output path
-   * @param format output format (csv, indexed)
+   * @param format output format
    * @throws Exception on failure
    */
   protected static void writeLogicalGraph(LogicalGraph graph, String directory, String format)
       throws Exception {
     graph.writeTo(getDataSink(directory, format, graph.getConfig()), true);
+    getExecutionEnvironment().execute();
+  }
+
+  /**
+   * Writes a temporal graph into a given directory.
+   *
+   * @param graph the temporal graph to write
+   * @param directory the target directory
+   * @param format the output format (csv, indexed)
+   * @throws Exception in case of an error
+   */
+  protected static void writeTemporalGraph(TemporalGraph graph, String directory, String format)
+    throws Exception {
+    graph.writeTo(getTemporalDataSink(directory, format, graph.getConfig()), true);
     getExecutionEnvironment().execute();
   }
 
@@ -177,7 +212,30 @@ public abstract class AbstractRunner {
   }
 
   /**
-   * Returns an EPGM DataSink for a given directory and format.
+   * Creates a TPGM data source for a given directory and format. The format string {@code csv} creates a
+   * {@link TemporalCSVDataSource} whereas {@code indexed} creates a {@link TemporalIndexedCSVDataSource}.
+   *
+   * @param directory the input path to the TPGM database
+   * @param format the input format
+   * @return a data source instance
+   */
+  private static TemporalDataSource getTemporalDataSource(String directory, String format) {
+    directory = appendSeparator(directory);
+    TemporalGradoopConfig config = TemporalGradoopConfig.createConfig(getExecutionEnvironment());
+    format = format.toLowerCase();
+
+    switch (format) {
+    case "csv":
+      return new TemporalCSVDataSource(directory, config);
+    case "indexed":
+      return new TemporalIndexedCSVDataSource(directory, config);
+    default:
+      throw new IllegalArgumentException("Unsupported format: " + format);
+    }
+  }
+
+  /**
+   * Returns an EPGM DataSink
    *
    * @param directory output path
    * @param format output format (csv, indexed)
@@ -193,6 +251,28 @@ public abstract class AbstractRunner {
       return new CSVDataSink(directory, config);
     case "indexed":
       return new IndexedCSVDataSink(directory, config);
+    default:
+      throw new IllegalArgumentException("Unsupported format: " + format);
+    }
+  }
+
+  /**
+   * Returns a TPGM data sink for a given directory and format.
+   *
+   * @param directory the directory where the graph will be stored
+   * @param format the output format (csv, indexed)
+   * @param config the temporal config
+   * @return a temporal data sink instance
+   */
+  private static TemporalDataSink getTemporalDataSink(String directory, String format, TemporalGradoopConfig config) {
+    directory = appendSeparator(directory);
+    format = format.toLowerCase();
+
+    switch (format) {
+    case "csv":
+      return new TemporalCSVDataSink(directory, config);
+    case "indexed":
+      return new TemporalIndexedCSVDataSink(directory, config);
     default:
       throw new IllegalArgumentException("Unsupported format: " + format);
     }
