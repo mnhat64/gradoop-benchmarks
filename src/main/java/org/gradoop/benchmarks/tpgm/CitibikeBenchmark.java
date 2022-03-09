@@ -71,7 +71,7 @@ public class CitibikeBenchmark extends BaseTpgmBenchmark {
         return temporalVertex;
       })
       // Pattern matching
-      .query("MATCH (v1:Station {cellId: 2883})-[t1:Trip]->(v2:Station)-[t2:Trip]->(v3:Station) " +
+      .temporalQuery("MATCH (v1:Station {cellId: 2883})-[t1:Trip]->(v2:Station)-[t2:Trip]->(v3:Station) " +
         "WHERE v2.id != v1.id " +
         "AND v2.id != v3.id " +
         "AND v3.id != v1.id " +
