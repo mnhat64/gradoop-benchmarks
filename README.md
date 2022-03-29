@@ -4,7 +4,6 @@ This repository contains sets of Gradoop operator benchmarks designed to run on 
 ## Components
 
 * Cypher Pattern Matching (GDL)
-* Cypher Pattern Matching (CAPF)
 * Transactional Pattern Matching
 * Grouping
 * Sampling
@@ -13,6 +12,7 @@ This repository contains sets of Gradoop operator benchmarks designed to run on 
 * Frequent Loss Patterns (BIIIG)
 * Category Characteristic Patterns (BIIIG)
 * Frequent Subgraph Mining (DimSpan)
+* Temporal Degree Metric
 
 ## Utilities
 * Gradoop format converter (csv <-> indexed)
