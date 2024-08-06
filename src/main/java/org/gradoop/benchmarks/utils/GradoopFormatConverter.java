@@ -28,9 +28,9 @@ public class GradoopFormatConverter extends AbstractRunner {
    * Converts a graph from one gradoop format to another.
    *
    * args[0] - path to input graph
-   * args[1] - format of input graph (csv, indexed)
+   * args[1] - format of input graph (csv, indexed, parquet, protobuf)
    * args[2] - path to output graph
-   * args[3] - format of output graph (csv, indexed)
+   * args[3] - format of output graph (csv, indexed, parquet, protobuf)
    * args[4] - 'temporal' if input and output is a TPGM graph
    *
    * @param args program arguments
@@ -38,11 +38,11 @@ public class GradoopFormatConverter extends AbstractRunner {
    */
   public static void main(String[] args) throws Exception {
     if (args[4] != null && args[4].equals("temporal")) {
-      TemporalGraph temporalGraph = readTemporalGraph(args[0], args[1]);
-      writeTemporalGraph(temporalGraph, args[2], args[3]);
+      TemporalGraph temporalGraph = readTemporalGraph(args[0], GradoopFormat.getByName(args[1]));
+      writeTemporalGraph(temporalGraph, args[2], GradoopFormat.getByName(args[3]));
     } else {
-      LogicalGraph graph = readLogicalGraph(args[0], args[1]);
-      writeLogicalGraph(graph, args[2], args[3]);
+      LogicalGraph graph = readLogicalGraph(args[0], GradoopFormat.getByName(args[1]));
+      writeLogicalGraph(graph, args[2], GradoopFormat.getByName(args[3]));
     }
   }
 }

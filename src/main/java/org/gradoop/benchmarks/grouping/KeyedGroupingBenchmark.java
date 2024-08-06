@@ -226,7 +226,7 @@ public class KeyedGroupingBenchmark extends AbstractRunner {
 
       vertexAggregateFunctions = Arrays.asList(
         new Count("count"),
-        new MinTime("minTime", DIMENSION, TimeDimension.Field.FROM));
+        new MinTime(DIMENSION, TimeDimension.Field.FROM, "minTime"));
 
       edgeAggregateFunctions = Collections.singletonList(new Count("count"));
       break;
@@ -245,7 +245,7 @@ public class KeyedGroupingBenchmark extends AbstractRunner {
 
       edgeAggregateFunctions = Arrays.asList(
         new Count("count"),
-        new MaxTime("maxTime", DIMENSION, TimeDimension.Field.FROM));
+        new MaxTime(DIMENSION, TimeDimension.Field.FROM, "maxTime"));
       break;
 
     default:

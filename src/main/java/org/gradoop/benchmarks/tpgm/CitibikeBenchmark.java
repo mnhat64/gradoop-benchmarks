@@ -17,6 +17,7 @@ package org.gradoop.benchmarks.tpgm;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.flink.api.java.ExecutionEnvironment;
+import org.gradoop.benchmarks.utils.GradoopFormat;
 import org.gradoop.benchmarks.utils.GridId;
 import org.gradoop.flink.model.api.functions.TransformationFunction;
 import org.gradoop.flink.model.impl.operators.aggregation.functions.count.Count;
@@ -61,7 +62,7 @@ public class CitibikeBenchmark extends BaseTpgmBenchmark {
 
     readBaseCMDArguments(cmd);
 
-    TemporalGraph citibikeGraph = readTemporalGraph(INPUT_PATH, INPUT_FORMAT)
+    TemporalGraph citibikeGraph = readTemporalGraph(INPUT_PATH, GradoopFormat.getByName(INPUT_FORMAT))
       // Snapshot
       .snapshot(new Overlaps(LocalDateTime.of(2017,1,1,0,0), LocalDateTime.of(2019,1,1,0,0)), VALID_TIME)
       // Transformation

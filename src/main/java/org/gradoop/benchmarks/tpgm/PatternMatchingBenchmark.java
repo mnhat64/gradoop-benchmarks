@@ -21,6 +21,7 @@ import org.apache.flink.api.java.DataSet;
 import org.apache.flink.api.java.ExecutionEnvironment;
 import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.core.fs.FileSystem;
+import org.gradoop.benchmarks.utils.GradoopFormat;
 import org.gradoop.temporal.model.impl.TemporalGraph;
 import org.gradoop.temporal.model.impl.TemporalGraphCollection;
 
@@ -52,7 +53,7 @@ public class PatternMatchingBenchmark extends BaseTpgmBenchmark {
 
     readBaseCMDArguments(cmd);
 
-    TemporalGraph graph = readTemporalGraph(INPUT_PATH, INPUT_FORMAT);
+    TemporalGraph graph = readTemporalGraph(INPUT_PATH, GradoopFormat.getByName(INPUT_FORMAT));
 
     ExecutionEnvironment env = graph.getConfig().getExecutionEnvironment();
 

@@ -19,6 +19,7 @@ import com.google.common.collect.Lists;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.io.FileUtils;
 import org.gradoop.benchmarks.AbstractRunner;
+import org.gradoop.benchmarks.utils.GradoopFormat;
 import org.gradoop.flink.model.api.functions.AggregateFunction;
 import org.gradoop.flink.model.api.operators.UnaryBaseGraphToBaseGraphOperator;
 import org.gradoop.flink.model.impl.epgm.LogicalGraph;
@@ -46,7 +47,7 @@ public class GroupingBenchmark extends AbstractRunner {
    */
   private static final String OPTION_INPUT_PATH = "i";
   /**
-   * Option to declare input graph format (csv, indexed)
+   * Option to declare input graph format ƒ(csv, indexed, parquet, protobuf)
    */
   private static final String OPTION_INPUT_FORMAT = "f";
   /**
@@ -219,7 +220,7 @@ public class GroupingBenchmark extends AbstractRunner {
     readCMDArguments(cmd);
 
     // initialize EPGM database
-    LogicalGraph graphDatabase = readLogicalGraph(INPUT_PATH, INPUT_FORMAT);
+    LogicalGraph graphDatabase = readLogicalGraph(INPUT_PATH, GradoopFormat.getByName(INPUT_FORMAT));
 
     // initialize grouping keys
     List<String> vertexKeys = Lists.newArrayList();
@@ -303,7 +304,7 @@ public class GroupingBenchmark extends AbstractRunner {
 
     // input format
     INPUT_FORMAT = cmd.hasOption(OPTION_INPUT_FORMAT) ?
-      cmd.getOptionValue(OPTION_INPUT_FORMAT).toLowerCase() : DEFAULT_FORMAT;
+      cmd.getOptionValue(OPTION_INPUT_FORMAT).toLowerCase() : DEFAULT_FORMAT.name;
 
     // initialize grouping strategy
     if (cmd.hasOption(OPTION_GROUPING_STRATEGY)) {

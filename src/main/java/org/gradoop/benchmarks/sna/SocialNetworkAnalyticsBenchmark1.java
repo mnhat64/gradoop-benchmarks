@@ -19,6 +19,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import org.apache.commons.io.IOUtils;
 import org.gradoop.benchmarks.AbstractRunner;
+import org.gradoop.benchmarks.utils.GradoopFormat;
 import org.gradoop.flink.algorithms.gelly.labelpropagation.GellyLabelPropagation;
 import org.gradoop.flink.model.api.functions.TransformationFunction;
 import org.gradoop.flink.model.impl.epgm.LogicalGraph;
@@ -66,7 +67,7 @@ public class SocialNetworkAnalyticsBenchmark1 extends AbstractRunner {
    *
    * 1) (possibly HDFS) input directory that contains a EPGM graph
    *
-   * 2) Format the graph is in (csv, indexed)
+   * 2) Format the graph is in (csv, indexed, parquet, protobuf)
    *
    * 3) (possibly HDFS) output directory to write the resulting graph to
    *
@@ -95,7 +96,7 @@ public class SocialNetworkAnalyticsBenchmark1 extends AbstractRunner {
 
   /**
    * Runs the benchmark program with external data (e.g. from HDFS)
-   * in a given format (csv, indexed)
+   * in a given format (csv, indexed, parquet, protobuf)
    *
    * @param args args[0]: input dir, args[1]: input format, args[2]: output dir, args[3]: threshold
    * @throws Exception on failure
@@ -109,7 +110,7 @@ public class SocialNetworkAnalyticsBenchmark1 extends AbstractRunner {
     String outputDir   = args[2];
     int threshold      = Integer.parseInt(args[3]);
 
-    LogicalGraph epgmDatabase = readLogicalGraph(inputDir, inputFormat);
+    LogicalGraph epgmDatabase = readLogicalGraph(inputDir, GradoopFormat.getByName(inputFormat));
 
     writeLogicalGraph(execute(epgmDatabase, threshold), outputDir);
   }

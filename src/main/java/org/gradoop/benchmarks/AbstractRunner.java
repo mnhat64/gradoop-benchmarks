@@ -21,12 +21,17 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.flink.api.java.ExecutionEnvironment;
+import org.gradoop.benchmarks.utils.GradoopFormat;
 import org.gradoop.flink.io.api.DataSink;
 import org.gradoop.flink.io.api.DataSource;
 import org.gradoop.flink.io.impl.csv.CSVDataSink;
 import org.gradoop.flink.io.impl.csv.CSVDataSource;
 import org.gradoop.flink.io.impl.csv.indexed.IndexedCSVDataSink;
 import org.gradoop.flink.io.impl.csv.indexed.IndexedCSVDataSource;
+import org.gradoop.flink.io.impl.parquet.plain.ParquetDataSink;
+import org.gradoop.flink.io.impl.parquet.plain.ParquetDataSource;
+import org.gradoop.flink.io.impl.parquet.protobuf.ParquetProtobufDataSink;
+import org.gradoop.flink.io.impl.parquet.protobuf.ParquetProtobufDataSource;
 import org.gradoop.flink.model.impl.epgm.LogicalGraph;
 import org.gradoop.flink.util.GradoopFlinkConfig;
 import org.gradoop.temporal.io.api.TemporalDataSink;
@@ -35,6 +40,10 @@ import org.gradoop.temporal.io.impl.csv.TemporalCSVDataSink;
 import org.gradoop.temporal.io.impl.csv.TemporalCSVDataSource;
 import org.gradoop.temporal.io.impl.csv.indexed.TemporalIndexedCSVDataSink;
 import org.gradoop.temporal.io.impl.csv.indexed.TemporalIndexedCSVDataSource;
+import org.gradoop.temporal.io.impl.parquet.plain.TemporalParquetDataSink;
+import org.gradoop.temporal.io.impl.parquet.plain.TemporalParquetDataSource;
+import org.gradoop.temporal.io.impl.parquet.protobuf.TemporalParquetProtobufDataSink;
+import org.gradoop.temporal.io.impl.parquet.protobuf.TemporalParquetProtobufDataSource;
 import org.gradoop.temporal.model.impl.TemporalGraph;
 import org.gradoop.temporal.util.TemporalGradoopConfig;
 
@@ -52,7 +61,7 @@ public abstract class AbstractRunner {
   /**
    * Graph format used as default
    */
-  protected static final String DEFAULT_FORMAT = "csv";
+  protected static final GradoopFormat DEFAULT_FORMAT = GradoopFormat.CSV;
   /**
    * Flink execution environment.
    */
@@ -91,11 +100,11 @@ public abstract class AbstractRunner {
    * Reads an EPGM database from a given directory.
    *
    * @param directory path to EPGM database
-   * @param format format in which the graph is stored (csv, indexed)
+   * @param format format in which the graph is stored
    * @return EPGM logical graph
    * @throws IOException on failure
    */
-  protected static LogicalGraph readLogicalGraph(String directory, String format) throws IOException {
+  protected static LogicalGraph readLogicalGraph(String directory, GradoopFormat format) throws IOException {
     return getDataSource(directory, format).getLogicalGraph();
   }
 
@@ -105,11 +114,11 @@ public abstract class AbstractRunner {
    * {@link TemporalIndexedCSVDataSource}.
    *
    * @param directory path to the TPGM database
-   * @param format format in which the graph is stored (csv, indexed)
+   * @param format format in which the graph is stored
    * @return a TPGM graph instance
    * @throws IOException in case of an error
    */
-  protected static TemporalGraph readTemporalGraph(String directory, String format) throws IOException {
+  protected static TemporalGraph readTemporalGraph(String directory, GradoopFormat format) throws IOException {
     return getTemporalDataSource(directory, format).getTemporalGraph();
   }
 
@@ -132,7 +141,7 @@ public abstract class AbstractRunner {
    * @param format output format
    * @throws Exception on failure
    */
-  protected static void writeLogicalGraph(LogicalGraph graph, String directory, String format)
+  protected static void writeLogicalGraph(LogicalGraph graph, String directory, GradoopFormat format)
       throws Exception {
     graph.writeTo(getDataSink(directory, format, graph.getConfig()), true);
     getExecutionEnvironment().execute();
@@ -143,10 +152,10 @@ public abstract class AbstractRunner {
    *
    * @param graph the temporal graph to write
    * @param directory the target directory
-   * @param format the output format (csv, indexed)
+   * @param format the output format
    * @throws Exception in case of an error
    */
-  protected static void writeTemporalGraph(TemporalGraph graph, String directory, String format)
+  protected static void writeTemporalGraph(TemporalGraph graph, String directory, GradoopFormat format)
     throws Exception {
     graph.writeTo(getTemporalDataSink(directory, format, graph.getConfig()), true);
     getExecutionEnvironment().execute();
@@ -193,19 +202,22 @@ public abstract class AbstractRunner {
    * Returns an EPGM DataSource for a given directory and format.
    *
    * @param directory input path
-   * @param format format in which the data is stored (csv, indexed)
+   * @param format format in which the data is stored
    * @return DataSource for EPGM Data
    */
-  private static DataSource getDataSource(String directory, String format) {
+  private static DataSource getDataSource(String directory, GradoopFormat format) {
     directory = appendSeparator(directory);
     GradoopFlinkConfig config = GradoopFlinkConfig.createConfig(getExecutionEnvironment());
-    format = format.toLowerCase();
 
     switch (format) {
-    case "csv":
+    case CSV:
       return new CSVDataSource(directory, config);
-    case "indexed":
+    case INDEXED_CSV:
       return new IndexedCSVDataSource(directory, config);
+    case PARQUET:
+      return new ParquetDataSource(directory, config);
+    case PARQUET_PROTOBUF:
+      return new ParquetProtobufDataSource(directory, config);
     default:
       throw new IllegalArgumentException("Unsupported format: " + format);
     }
@@ -219,16 +231,19 @@ public abstract class AbstractRunner {
    * @param format the input format
    * @return a data source instance
    */
-  private static TemporalDataSource getTemporalDataSource(String directory, String format) {
+  private static TemporalDataSource getTemporalDataSource(String directory, GradoopFormat format) {
     directory = appendSeparator(directory);
     TemporalGradoopConfig config = TemporalGradoopConfig.createConfig(getExecutionEnvironment());
-    format = format.toLowerCase();
 
     switch (format) {
-    case "csv":
+    case CSV:
       return new TemporalCSVDataSource(directory, config);
-    case "indexed":
+    case INDEXED_CSV:
       return new TemporalIndexedCSVDataSource(directory, config);
+    case PARQUET:
+      return new TemporalParquetDataSource(directory, config);
+    case PARQUET_PROTOBUF:
+      return new TemporalParquetProtobufDataSource(directory, config);
     default:
       throw new IllegalArgumentException("Unsupported format: " + format);
     }
@@ -238,19 +253,22 @@ public abstract class AbstractRunner {
    * Returns an EPGM DataSink
    *
    * @param directory output path
-   * @param format output format (csv, indexed)
+   * @param format output format
    * @param config gradoop config
    * @return DataSink for EPGM Data
    */
-  private static DataSink getDataSink(String directory, String format, GradoopFlinkConfig config) {
+  private static DataSink getDataSink(String directory, GradoopFormat format, GradoopFlinkConfig config) {
     directory = appendSeparator(directory);
-    format = format.toLowerCase();
 
     switch (format) {
-    case "csv":
+    case CSV:
       return new CSVDataSink(directory, config);
-    case "indexed":
+    case INDEXED_CSV:
       return new IndexedCSVDataSink(directory, config);
+    case PARQUET:
+      return new ParquetDataSink(directory, config);
+    case PARQUET_PROTOBUF:
+      return new ParquetProtobufDataSink(directory, config);
     default:
       throw new IllegalArgumentException("Unsupported format: " + format);
     }
@@ -260,19 +278,23 @@ public abstract class AbstractRunner {
    * Returns a TPGM data sink for a given directory and format.
    *
    * @param directory the directory where the graph will be stored
-   * @param format the output format (csv, indexed)
+   * @param format the output format
    * @param config the temporal config
    * @return a temporal data sink instance
    */
-  private static TemporalDataSink getTemporalDataSink(String directory, String format, TemporalGradoopConfig config) {
+  private static TemporalDataSink getTemporalDataSink(String directory, GradoopFormat format,
+    TemporalGradoopConfig config) {
     directory = appendSeparator(directory);
-    format = format.toLowerCase();
 
     switch (format) {
-    case "csv":
+    case CSV:
       return new TemporalCSVDataSink(directory, config);
-    case "indexed":
+    case INDEXED_CSV:
       return new TemporalIndexedCSVDataSink(directory, config);
+    case PARQUET:
+      return new TemporalParquetDataSink(directory, config);
+    case PARQUET_PROTOBUF:
+      return new TemporalParquetProtobufDataSink(directory, config);
     default:
       throw new IllegalArgumentException("Unsupported format: " + format);
     }

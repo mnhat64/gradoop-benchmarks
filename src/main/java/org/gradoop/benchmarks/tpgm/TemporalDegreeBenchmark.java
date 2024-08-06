@@ -20,6 +20,7 @@ import org.apache.flink.api.java.DataSet;
 import org.apache.flink.api.java.ExecutionEnvironment;
 import org.apache.flink.api.java.tuple.Tuple4;
 import org.apache.flink.core.fs.FileSystem;
+import org.gradoop.benchmarks.utils.GradoopFormat;
 import org.gradoop.common.model.impl.id.GradoopId;
 import org.gradoop.flink.model.impl.operators.sampling.functions.VertexDegree;
 import org.gradoop.temporal.model.api.TimeDimension;
@@ -96,7 +97,7 @@ public class TemporalDegreeBenchmark extends BaseTpgmBenchmark {
     TimeDimension timeDimension = TimeDimension.valueOf(TIME_DIMENSION);
 
     // read graph
-    TemporalGraph temporalGraph = readTemporalGraph(INPUT_PATH, INPUT_FORMAT);
+    TemporalGraph temporalGraph = readTemporalGraph(INPUT_PATH, GradoopFormat.getByName(INPUT_FORMAT));
 
     TemporalGradoopConfig conf = temporalGraph.getConfig();
     ExecutionEnvironment env = conf.getExecutionEnvironment();

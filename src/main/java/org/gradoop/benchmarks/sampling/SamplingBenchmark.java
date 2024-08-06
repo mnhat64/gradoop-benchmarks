@@ -19,6 +19,7 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.io.FileUtils;
 import org.apache.flink.api.java.ExecutionEnvironment;
 import org.gradoop.benchmarks.AbstractRunner;
+import org.gradoop.benchmarks.utils.GradoopFormat;
 import org.gradoop.common.model.impl.pojo.EPGMEdge;
 import org.gradoop.common.model.impl.pojo.EPGMGraphHead;
 import org.gradoop.common.model.impl.pojo.EPGMVertex;
@@ -136,7 +137,7 @@ public class SamplingBenchmark extends AbstractRunner {
 
     readCMDArguments(cmd);
 
-    LogicalGraph graph = readLogicalGraph(INPUT_PATH, INPUT_FORMAT);
+    LogicalGraph graph = readLogicalGraph(INPUT_PATH, GradoopFormat.getByName(INPUT_FORMAT));
 
     // instantiate selected sampling algorithm and create sample
     final SamplingAlgorithm<EPGMGraphHead, EPGMVertex, EPGMEdge, LogicalGraph, GraphCollection>
