@@ -51,7 +51,7 @@ public class FinBenchBenchmark extends BaseTpgmBenchmark {
      * Main program to run the benchmark. Arguments are the available options.
      * Example: {@code /path/to/flink run -c org.gradoop.benchmarks.tpgm.FinBenchBenchmark
      * path/to/gradoop-benchmarks.jar -i hdfs:///graph -o hdfs:///output -c results.csv
-     * -x 1287000000000 -y 1230000000000}
+     * -y 4 -f 1664803797282000 -t 1719319393000 -id 4902731144346222798 -th 10}
      *
      * @param args program arguments
      * @throws Exception in case of error
